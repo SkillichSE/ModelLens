@@ -8,24 +8,16 @@ on:
   # Allow manual trigger
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true
+        uses: actions/checkout@v3
       
       - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       
@@ -52,22 +44,6 @@ jobs:
         run: |
           git config user.name "Benchmark Bot"
           git config user.email "bot@benchmark.ai"
-          
-          echo "📂 Files in docs/data/results/:"
-          ls -la docs/data/results/
-          
-          echo "➕ Adding files to git..."
-          git add docs/data/results/ || true
-          
-          echo "📝 Git status:"
-          git status
-          
-          echo "💾 Committing..."
-          if git diff --quiet && git diff --staged --quiet; then
-            echo "✅ No changes to commit"
-          else
-            git commit -m "📊 Update benchmark results - $(date +'%Y-%m-%d')"
-            echo "⬆️  Pushing to GitHub..."
-            git push
-            echo "✅ Push successful!"
-          fi
+          git add data/results/
+          git diff --quiet && git diff --staged --quiet || git commit -m "📊 Update benchmark results - $(date +'%Y-%m-%d')"
+          git push
