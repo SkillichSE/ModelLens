@@ -53,11 +53,11 @@ jobs:
           git config user.name "Benchmark Bot"
           git config user.email "bot@benchmark.ai"
           
-          echo "📂 Files in data/results/:"
-          ls -la data/results/
+          echo "📂 Files in docs/data/results/:"
+          ls -la docs/data/results/
           
           echo "➕ Adding files to git..."
-          git add data/results/ || true
+          git add docs/data/results/ || true
           
           echo "📝 Git status:"
           git status

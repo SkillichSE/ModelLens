@@ -67,9 +67,9 @@ class NewsParser:
     
     def save_news(self):
         """Save news to JSON"""
-        Path("../data/results").mkdir(parents=True, exist_ok=True)
+        Path("../docs/data/results").mkdir(parents=True, exist_ok=True)
         
-        news_file = "../data/results/news.json"
+        news_file = "../docs/data/results/news.json"
         with open(news_file, "w") as f:
             json.dump({
                 "updated": datetime.now().isoformat(),

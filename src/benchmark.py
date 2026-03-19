@@ -195,16 +195,16 @@ class ModelBenchmark:
         """Save results to JSON files"""
         date_str = datetime.now().strftime("%Y-%m-%d")
         
-        # Create data directory (relative to repo root, not src/)
-        Path("../data/results").mkdir(parents=True, exist_ok=True)
+        # Create data directory inside docs/ for GitHub Pages
+        Path("../docs/data/results").mkdir(parents=True, exist_ok=True)
         
         # Save daily results
-        daily_file = f"../data/results/{date_str}.json"
+        daily_file = f"../docs/data/results/{date_str}.json"
         with open(daily_file, "w") as f:
             json.dump(self.results, f, indent=2)
         
         # Update latest.json
-        latest_file = "../data/results/latest.json"
+        latest_file = "../docs/data/results/latest.json"
         with open(latest_file, "w") as f:
             json.dump({
                 "date": date_str,
@@ -214,7 +214,7 @@ class ModelBenchmark:
         
         # Update leaderboard
         leaderboard = sorted(self.results, key=lambda x: x["overall_score"], reverse=True)
-        leaderboard_file = "../data/results/leaderboard.json"
+        leaderboard_file = "../docs/data/results/leaderboard.json"
         with open(leaderboard_file, "w") as f:
             json.dump(leaderboard, f, indent=2)
         
