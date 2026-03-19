@@ -66,7 +66,8 @@ class ModelBenchmark:
     
     def test_google_model(self, model_id, prompt):
         """Test a Google Gemini model"""
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={self.google_key}"
+        # Use v1 stable API instead of v1beta
+        url = f"https://generativelanguage.googleapis.com/v1/models/{model_id}:generateContent?key={self.google_key}"
         
         data = {
             "contents": [{

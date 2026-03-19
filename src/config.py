@@ -2,35 +2,28 @@
 Configuration for AI model benchmarks
 """
 
-# Models to test (all free tier)
+# Models to test (all free tier - VERIFIED WORKING)
 MODELS = {
     "groq": {
         "llama-3.1-8b": {
             "id": "llama-3.1-8b-instant",
-            "name": "Llama 3.1 8B",
+            "name": "Llama 3.1 8B Instant",
             "provider": "Groq",
             "size": "8B",
-            "context": "128k"
-        },
-        "llama-3.1-70b": {
-            "id": "llama-3.1-70b-versatile",
-            "name": "Llama 3.1 70B",
-            "provider": "Groq",
-            "size": "70B",
             "context": "128k"
         },
         "llama-3.3-70b": {
             "id": "llama-3.3-70b-versatile",
-            "name": "Llama 3.3 70B",
+            "name": "Llama 3.3 70B Versatile",
             "provider": "Groq",
             "size": "70B",
             "context": "128k"
         },
-        "llama-guard-3-8b": {
-            "id": "llama-guard-3-8b",
-            "name": "Llama Guard 3 8B",
+        "llama-3.3-70b-specdec": {
+            "id": "llama-3.3-70b-specdec",
+            "name": "Llama 3.3 70B SpecDec",
             "provider": "Groq",
-            "size": "8B",
+            "size": "70B",
             "context": "8k"
         }
     },
