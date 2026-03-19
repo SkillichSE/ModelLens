@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Model Benchmarker - Real-time Rankings</title>
+  <meta name="description" content="Daily automated benchmarks of free AI models. Compare speed, quality, and performance.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span>AI Benchmarker</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="search.html" class="nav-link">Search</a>
+        <a href="news.html" class="nav-link">News</a>
+        <a href="trends.html" class="nav-link">Trends</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="container">
+      <h1 class="hero-title">Real-time AI Model Rankings</h1>
+      <p class="hero-subtitle">
+        Daily automated benchmarks of free AI models.<br>
+        Compare speed, code quality, and performance.
+      </p>
+      <p class="hero-meta" id="last-update">
+        Last updated: Loading...
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- Top Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="fastest-speed">-</div>
+        <div class="stat-label">Fastest (tok/s)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="best-code">-</div>
+        <div class="stat-label">Best Code Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="total-models">-</div>
+        <div class="stat-label">Models Tested</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="total-tests">-</div>
+        <div class="stat-label">Tests Run</div>
+      </div>
+    </div>
+
+    <!-- Champions Section -->
+    <section style="margin-bottom: 48px;">
+      <h2>🏆 Today's Champions</h2>
+      <div class="grid grid-3" id="champions-grid">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Full Leaderboard -->
+    <section>
+      <h2>📊 Full Leaderboard</h2>
+      <div class="grid grid-2" id="leaderboard">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Latest News Preview -->
+    <section style="margin-top: 48px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2>📰 Latest AI News</h2>
+        <a href="news.html" class="btn btn-outlined">View All</a>
+      </div>
+      <div id="news-preview">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/yourusername/ai-benchmarker" class="footer-link">GitHub</a>
+      <a href="#" class="footer-link">API Docs</a>
+      <a href="#" class="footer-link">About</a>
+    </div>
+    <p>
+      Open source project • Updated daily via GitHub Actions<br>
+      Made with ⚡ by the community
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Initialize home page
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Load latest results
+        const response = await fetch('data/results/latest.json');
+        const data = await response.json();
+        
+        // Update last update time
+        const date = new Date(data.timestamp);
+        document.getElementById('last-update').textContent = 
+          `Last updated: ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+        
+        // Calculate stats
+        const results = data.results;
+        const speeds = results.map(r => r.tests.speed?.avg_tokens_per_sec || 0);
+        const codeScores = results.map(r => r.tests.code?.avg_score || 0);
+        
+        document.getElementById('fastest-speed').textContent = 
+          Math.round(Math.max(...speeds));
+        document.getElementById('best-code').textContent = 
+          Math.round(Math.max(...codeScores));
+        document.getElementById('total-models').textContent = results.length;
+        document.getElementById('total-tests').textContent = results.length * 6; // 6 tests per model
+        
+        // Sort by overall score
+        const sorted = [...results].sort((a, b) => b.overall_score - a.overall_score);
+        
+        // Champions (top 3)
+        const championsGrid = document.getElementById('champions-grid');
+        sorted.slice(0, 3).forEach((model, index) => {
+          const medal = ['🥇', '🥈', '🥉'][index];
+          championsGrid.innerHTML += `
+            <div class="card">
+              <div style="text-align: center; margin-bottom: 16px;">
+                <div style="font-size: 3rem;">${medal}</div>
+              </div>
+              <h3 class="card-title" style="text-align: center;">${model.model_name}</h3>
+              <p class="card-subtitle" style="text-align: center;">${model.provider}</p>
+              <div style="margin-top: 16px;">
+                <div class="metric">
+                  <span class="metric-label">Speed</span>
+                  <span class="metric-value" style="font-size: 1.25rem;">
+                    ${Math.round(model.tests.speed?.avg_tokens_per_sec || 0)} tok/s
+                  </span>
+                </div>
+                <div class="metric" style="margin-top: 8px;">
+                  <span class="metric-label">Code Quality</span>
+                  <span class="metric-value" style="font-size: 1.25rem;">
+                    ${Math.round(model.tests.code?.avg_score || 0)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Full leaderboard
+        const leaderboard = document.getElementById('leaderboard');
+        sorted.forEach((model, index) => {
+          const speedScore = model.tests.speed?.avg_tokens_per_sec || 0;
+          const codeScore = model.tests.code?.avg_score || 0;
+          
+          leaderboard.innerHTML += `
+            <div class="model-card">
+              <div class="model-header">
+                <div>
+                  <div class="model-name">${model.model_name}</div>
+                  <div class="model-provider">${model.provider} • ${model.size}</div>
+                </div>
+                <div class="model-rank">#${index + 1}</div>
+              </div>
+              
+              <div class="model-metrics">
+                <div class="metric">
+                  <span class="metric-label">Speed</span>
+                  <span class="metric-value">${Math.round(speedScore)}</span>
+                  <span style="font-size: 0.75rem; color: var(--text-tertiary);">tokens/sec</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Code</span>
+                  <span class="metric-value">${Math.round(codeScore)}%</span>
+                </div>
+              </div>
+              
+              <div style="margin-top: 16px;">
+                <div class="metric-label">Overall Score</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${model.overall_score}%"></div>
+                </div>
+                <div style="text-align: right; font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+                  ${Math.round(model.overall_score)}/100
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Load news preview
+        const newsResponse = await fetch('data/results/news.json');
+        const newsData = await newsResponse.json();
+        const newsPreview = document.getElementById('news-preview');
+        
+        newsData.items.slice(0, 3).forEach(item => {
+          newsPreview.innerHTML += `
+            <div class="news-item">
+              <div class="news-date">${new Date(item.date).toLocaleDateString()}</div>
+              <h3 class="news-title">
+                <a href="${item.link}" target="_blank">${item.title}</a>
+              </h3>
+              <p class="news-summary">${item.summary}</p>
+              <span class="news-source">${item.source}</span>
+            </div>
+          `;
+        });
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        document.querySelector('.container').innerHTML = `
+          <div class="card" style="text-align: center; padding: 48px;">
+            <h2>⏳ First benchmark running...</h2>
+            <p style="color: var(--text-secondary); margin-top: 16px;">
+              Results will appear here after the first automated test completes.<br>
+              This usually takes 5-10 minutes.
+            </p>
+            <a href="https://github.com/yourusername/ai-benchmarker/actions" 
+               class="btn btn-primary" style="margin-top: 24px;">
+              View Progress on GitHub
+            </a>
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

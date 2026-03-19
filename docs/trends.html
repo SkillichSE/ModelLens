@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trends - AI Benchmarker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span>AI Benchmarker</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="search.html" class="nav-link">Search</a>
+        <a href="news.html" class="nav-link">News</a>
+        <a href="trends.html" class="nav-link active">Trends</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>📈 Performance Trends</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 32px;">
+      Track how models improve over time
+    </p>
+
+    <!-- Chart: Speed Over Time -->
+    <section style="margin-bottom: 48px;">
+      <div class="card">
+        <h2 style="margin-bottom: 24px;">⚡ Speed Comparison (Tokens/Second)</h2>
+        <canvas id="speed-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- Chart: Code Quality Over Time -->
+    <section style="margin-bottom: 48px;">
+      <div class="card">
+        <h2 style="margin-bottom: 24px;">💻 Code Quality Score</h2>
+        <canvas id="code-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- Insights -->
+    <section>
+      <h2>💡 Key Insights</h2>
+      <div class="grid grid-2" id="insights">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/yourusername/ai-benchmarker" class="footer-link">GitHub</a>
+      <a href="#" class="footer-link">API Docs</a>
+      <a href="#" class="footer-link">About</a>
+    </div>
+    <p>Open source project • Updated daily</p>
+  </footer>
+
+  <script>
+    // Chart.js configuration
+    Chart.defaults.font.family = "'Roboto', sans-serif";
+    Chart.defaults.color = '#5f6368';
+
+    const chartColors = {
+      'Llama 3.1 70B': '#1a73e8',
+      'Llama 3.1 8B': '#4285f4',
+      'Mixtral 8x7B': '#ea4335',
+      'Gemini 1.5 Flash': '#34a853',
+      'Gemini 1.5 Pro': '#fbbc04'
+    };
+
+    async function loadTrends() {
+      try {
+        // For now, use latest data (in production, would load historical data)
+        const response = await fetch('data/results/latest.json');
+        const data = await response.json();
+        
+        // Create speed chart
+        createSpeedChart(data.results);
+        
+        // Create code quality chart
+        createCodeChart(data.results);
+        
+        // Generate insights
+        generateInsights(data.results);
+        
+      } catch (error) {
+        console.error('Error loading trends:', error);
+      }
+    }
+
+    function createSpeedChart(results) {
+      const ctx = document.getElementById('speed-chart').getContext('2d');
+      
+      const sortedBySpeed = [...results].sort((a, b) => 
+        (b.tests.speed?.avg_tokens_per_sec || 0) - (a.tests.speed?.avg_tokens_per_sec || 0)
+      );
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedBySpeed.map(r => r.model_name),
+          datasets: [{
+            label: 'Tokens per Second',
+            data: sortedBySpeed.map(r => Math.round(r.tests.speed?.avg_tokens_per_sec || 0)),
+            backgroundColor: sortedBySpeed.map(r => chartColors[r.model_name] || '#1a73e8'),
+            borderRadius: 8,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: {
+                size: 14
+              },
+              bodyFont: {
+                size: 13
+              },
+              cornerRadius: 8,
+              displayColors: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: '#f1f3f4'
+              },
+              ticks: {
+                callback: function(value) {
+                  return value + ' tok/s';
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createCodeChart(results) {
+      const ctx = document.getElementById('code-chart').getContext('2d');
+      
+      const sortedByCode = [...results].sort((a, b) => 
+        (b.tests.code?.avg_score || 0) - (a.tests.code?.avg_score || 0)
+      );
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedByCode.map(r => r.model_name),
+          datasets: [{
+            label: 'Code Quality Score',
+            data: sortedByCode.map(r => Math.round(r.tests.code?.avg_score || 0)),
+            backgroundColor: sortedByCode.map(r => chartColors[r.model_name] || '#34a853'),
+            borderRadius: 8,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              cornerRadius: 8,
+              displayColors: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: '#f1f3f4'
+              },
+              ticks: {
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function generateInsights(results) {
+      const insightsContainer = document.getElementById('insights');
+      
+      // Find fastest model
+      const fastest = results.reduce((prev, current) => 
+        (current.tests.speed?.avg_tokens_per_sec || 0) > (prev.tests.speed?.avg_tokens_per_sec || 0) ? current : prev
+      );
+
+      // Find best code model
+      const bestCode = results.reduce((prev, current) => 
+        (current.tests.code?.avg_score || 0) > (prev.tests.code?.avg_score || 0) ? current : prev
+      );
+
+      // Average speed
+      const avgSpeed = results.reduce((sum, r) => sum + (r.tests.speed?.avg_tokens_per_sec || 0), 0) / results.length;
+
+      insightsContainer.innerHTML = `
+        <div class="card">
+          <div style="font-size: 2rem; margin-bottom: 16px;">🚀</div>
+          <h3>Fastest Model</h3>
+          <p style="color: var(--text-secondary); margin: 8px 0;">
+            <strong style="color: var(--primary);">${fastest.model_name}</strong> leads with 
+            ${Math.round(fastest.tests.speed?.avg_tokens_per_sec || 0)} tokens/sec
+          </p>
+          <div style="margin-top: 16px;">
+            <span class="chip chip-blue">${fastest.provider}</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 2rem; margin-bottom: 16px;">💻</div>
+          <h3>Best Code Quality</h3>
+          <p style="color: var(--text-secondary); margin: 8px 0;">
+            <strong style="color: var(--primary);">${bestCode.model_name}</strong> achieves 
+            ${Math.round(bestCode.tests.code?.avg_score || 0)}% score
+          </p>
+          <div style="margin-top: 16px;">
+            <span class="chip chip-green">${bestCode.provider}</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 2rem; margin-bottom: 16px;">📊</div>
+          <h3>Average Performance</h3>
+          <p style="color: var(--text-secondary); margin: 8px 0;">
+            Models average <strong style="color: var(--primary);">${Math.round(avgSpeed)} tok/s</strong> 
+            across all tests
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 2rem; margin-bottom: 16px;">🎯</div>
+          <h3>Consistency</h3>
+          <p style="color: var(--text-secondary); margin: 8px 0;">
+            ${results.length} models tested daily with consistent benchmarks
+          </p>
+        </div>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadTrends);
+  </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI News - AI Benchmarker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span>AI Benchmarker</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="search.html" class="nav-link">Search</a>
+        <a href="news.html" class="nav-link active">News</a>
+        <a href="trends.html" class="nav-link">Trends</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>📰 AI Model News</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 32px;">
+      Latest updates, releases, and announcements from AI providers
+    </p>
+
+    <!-- Update info -->
+    <div class="card" style="margin-bottom: 32px; background: var(--surface);">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.5rem;">🔄</span>
+        <div>
+          <strong>Auto-updated daily</strong>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;" id="last-update">
+            Last checked: Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter by source -->
+    <div style="margin-bottom: 24px;">
+      <strong style="font-size: 0.875rem; color: var(--text-secondary);">FILTER BY SOURCE</strong>
+      <div class="filters" id="source-filters" style="margin-top: 8px;">
+        <button class="filter-btn active" data-source="all">All Sources</button>
+        <button class="filter-btn" data-source="HuggingFace">HuggingFace</button>
+        <button class="filter-btn" data-source="Groq">Groq</button>
+        <button class="filter-btn" data-source="Google">Google</button>
+      </div>
+    </div>
+
+    <!-- News feed -->
+    <div id="news-feed">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- No news message -->
+    <div id="no-news" style="display: none; text-align: center; padding: 48px;">
+      <div style="font-size: 3rem; margin-bottom: 16px;">📰</div>
+      <h3>No news yet</h3>
+      <p style="color: var(--text-secondary); margin-top: 8px;">
+        News will appear here after the first automated fetch
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/yourusername/ai-benchmarker" class="footer-link">GitHub</a>
+      <a href="#" class="footer-link">API Docs</a>
+      <a href="#" class="footer-link">About</a>
+    </div>
+    <p>Open source project • Updated daily</p>
+  </footer>
+
+  <script>
+    let allNews = [];
+    let currentSource = 'all';
+
+    async function loadNews() {
+      try {
+        const response = await fetch('data/results/news.json');
+        const data = await response.json();
+        
+        // Update last update time
+        const updateDate = new Date(data.updated);
+        document.getElementById('last-update').textContent = 
+          `Last checked: ${updateDate.toLocaleDateString()} at ${updateDate.toLocaleTimeString()}`;
+        
+        allNews = data.items;
+        displayNews();
+      } catch (error) {
+        console.error('Error loading news:', error);
+        document.getElementById('no-news').style.display = 'block';
+      }
+    }
+
+    function displayNews() {
+      const newsFeed = document.getElementById('news-feed');
+      const noNews = document.getElementById('no-news');
+
+      // Filter by source
+      const filtered = currentSource === 'all' 
+        ? allNews 
+        : allNews.filter(item => item.source === currentSource);
+
+      if (filtered.length === 0) {
+        newsFeed.style.display = 'none';
+        noNews.style.display = 'block';
+        return;
+      }
+
+      newsFeed.style.display = 'block';
+      noNews.style.display = 'none';
+
+      newsFeed.innerHTML = filtered.map(item => {
+        const date = new Date(item.date);
+        const sourceColors = {
+          'HuggingFace': 'chip-yellow',
+          'Groq': 'chip-blue',
+          'Google': 'chip-green',
+        };
+        const chipClass = sourceColors[item.source] || 'chip-gray';
+
+        return `
+          <div class="news-item">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+              <div class="news-date">${date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</div>
+              <span class="chip ${chipClass}">${item.source}</span>
+            </div>
+            
+            <h3 class="news-title">
+              <a href="${item.link}" target="_blank" rel="noopener noreferrer">
+                ${item.title}
+              </a>
+            </h3>
+            
+            ${item.summary ? `<p class="news-summary">${item.summary}</p>` : ''}
+            
+            <a href="${item.link}" target="_blank" rel="noopener noreferrer" 
+               style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">
+              Read more →
+            </a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      loadNews();
+
+      document.getElementById('source-filters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+          document.querySelectorAll('#source-filters .filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          e.target.classList.add('active');
+          currentSource = e.target.dataset.source;
+          displayNews();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

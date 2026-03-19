@@ -1,0 +1,73 @@
+name: Daily AI Benchmark
+
+on:
+  schedule:
+    # Run every day at 3:00 UTC
+    - cron: '0 3 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 📦 Install dependencies
+        run: |
+          pip install requests feedparser
+      
+      - name: ⚡ Run benchmarks
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd src
+          python benchmark.py
+      
+      - name: 📰 Fetch news
+        run: |
+          cd src
+          python news_parser.py
+      
+      - name: 💾 Commit results
+        run: |
+          git config user.name "Benchmark Bot"
+          git config user.email "bot@benchmark.ai"
+          
+          echo "📂 Files in docs/data/results/:"
+          ls -la docs/data/results/
+          
+          echo "➕ Adding files to git..."
+          git add docs/data/results/ || true
+          
+          echo "📝 Git status:"
+          git status
+          
+          echo "💾 Committing..."
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "✅ No changes to commit"
+          else
+            git commit -m "📊 Update benchmark results - $(date +'%Y-%m-%d')"
+            echo "⬆️  Pushing to GitHub..."
+            git push
+            echo "✅ Push successful!"
+          fi
