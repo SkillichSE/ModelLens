@@ -5,28 +5,56 @@ Configuration for AI model benchmarks
 # Models to test (all free tier)
 MODELS = {
     "groq": {
-        "llama-8b": {
+        "llama-3.1-8b": {
             "id": "llama-3.1-8b-instant",
             "name": "Llama 3.1 8B",
             "provider": "Groq",
             "size": "8B",
             "context": "128k"
+        },
+        "llama-3.2-3b": {
+            "id": "llama-3.2-3b-preview",
+            "name": "Llama 3.2 3B",
+            "provider": "Groq",
+            "size": "3B",
+            "context": "8k"
+        },
+        "llama-3.2-1b": {
+            "id": "llama-3.2-1b-preview",
+            "name": "Llama 3.2 1B",
+            "provider": "Groq",
+            "size": "1B",
+            "context": "8k"
+        },
+        "gemma-2-9b": {
+            "id": "gemma2-9b-it",
+            "name": "Gemma 2 9B",
+            "provider": "Groq",
+            "size": "9B",
+            "context": "8k"
+        },
+        "mixtral-8x7b": {
+            "id": "mixtral-8x7b-32768",
+            "name": "Mixtral 8x7B",
+            "provider": "Groq",
+            "size": "8x7B",
+            "context": "32k"
         }
     },
     "google": {
         "gemini-flash": {
-            "id": "gemini-1.5-flash",
+            "id": "gemini-1.5-flash-latest",
             "name": "Gemini 1.5 Flash",
             "provider": "Google",
             "size": "N/A",
             "context": "1M"
         },
-        "gemini-pro": {
-            "id": "gemini-1.5-pro",
-            "name": "Gemini 1.5 Pro",
+        "gemini-flash-8b": {
+            "id": "gemini-1.5-flash-8b-latest",
+            "name": "Gemini 1.5 Flash 8B",
             "provider": "Google",
-            "size": "N/A",
-            "context": "2M"
+            "size": "8B",
+            "context": "1M"
         }
     }
 }

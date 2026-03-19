@@ -53,13 +53,20 @@ class ModelBenchmark:
                     "tokens_per_sec": usage.get("total_tokens", 0) / (end - start) if (end - start) > 0 else 0
                 }
             else:
-                return {"success": False, "error": f"Status {response.status_code}"}
+                error_msg = f"Status {response.status_code}"
+                try:
+                    error_data = response.json()
+                    if "error" in error_data:
+                        error_msg += f" - {error_data['error'].get('message', '')}"
+                except:
+                    pass
+                return {"success": False, "error": error_msg}
         except Exception as e:
             return {"success": False, "error": str(e)}
     
     def test_google_model(self, model_id, prompt):
         """Test a Google Gemini model"""
-        url = f"{GOOGLE_API}/{model_id}:generateContent?key={self.google_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={self.google_key}"
         
         data = {
             "contents": [{
@@ -73,11 +80,16 @@ class ModelBenchmark:
         
         start = time.time()
         try:
-            response = requests.post(url, json=data, timeout=30)
+            response = requests.post(url, json=data, timeout=60)
             end = time.time()
             
             if response.status_code == 200:
                 result = response.json()
+                
+                # Check if response has the expected structure
+                if "candidates" not in result or len(result["candidates"]) == 0:
+                    return {"success": False, "error": "No candidates in response"}
+                
                 content = result["candidates"][0]["content"]["parts"][0]["text"]
                 usage = result.get("usageMetadata", {})
                 
@@ -89,7 +101,14 @@ class ModelBenchmark:
                     "tokens_per_sec": usage.get("totalTokenCount", 0) / (end - start) if (end - start) > 0 else 0
                 }
             else:
-                return {"success": False, "error": f"Status {response.status_code}"}
+                error_msg = f"Status {response.status_code}"
+                try:
+                    error_data = response.json()
+                    if "error" in error_data:
+                        error_msg += f" - {error_data['error'].get('message', '')}"
+                except:
+                    pass
+                return {"success": False, "error": error_msg}
         except Exception as e:
             return {"success": False, "error": str(e)}
     
@@ -144,8 +163,10 @@ class ModelBenchmark:
                             "time": result["total_time"],
                             "tokens_per_sec": result["tokens_per_sec"]
                         })
+                    else:
+                        print(f"    ⚠️  Speed test '{test_name}' failed: {result.get('error', 'Unknown')}")
                     
-                    time.sleep(1)  # Rate limiting
+                    time.sleep(2)  # Rate limiting - 2 seconds between requests
                 
                 avg_speed = sum(r["tokens_per_sec"] for r in speed_results) / len(speed_results) if speed_results else 0
                 model_results["tests"]["speed"] = {
@@ -169,8 +190,10 @@ class ModelBenchmark:
                             "score": score,
                             "code": result["content"][:200]  # First 200 chars
                         })
+                    else:
+                        print(f"    ⚠️  Code test '{test_name}' failed: {result.get('error', 'Unknown')}")
                     
-                    time.sleep(1)
+                    time.sleep(2)
                 
                 avg_code = sum(r["score"] for r in code_results) / len(code_results) if code_results else 0
                 model_results["tests"]["code"] = {
@@ -191,16 +214,16 @@ class ModelBenchmark:
         """Save results to JSON files"""
         date_str = datetime.now().strftime("%Y-%m-%d")
         
-        # Create data directory
-        Path("data/results").mkdir(parents=True, exist_ok=True)
+        # Create data directory inside docs/ for GitHub Pages
+        Path("../docs/data/results").mkdir(parents=True, exist_ok=True)
         
         # Save daily results
-        daily_file = f"data/results/{date_str}.json"
+        daily_file = f"../docs/data/results/{date_str}.json"
         with open(daily_file, "w") as f:
             json.dump(self.results, f, indent=2)
         
         # Update latest.json
-        latest_file = "data/results/latest.json"
+        latest_file = "../docs/data/results/latest.json"
         with open(latest_file, "w") as f:
             json.dump({
                 "date": date_str,
@@ -210,7 +233,7 @@ class ModelBenchmark:
         
         # Update leaderboard
         leaderboard = sorted(self.results, key=lambda x: x["overall_score"], reverse=True)
-        leaderboard_file = "data/results/leaderboard.json"
+        leaderboard_file = "../docs/data/results/leaderboard.json"
         with open(leaderboard_file, "w") as f:
             json.dump(leaderboard, f, indent=2)
         
