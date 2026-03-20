@@ -290,7 +290,15 @@ function buildChampions(results){
 document.addEventListener('DOMContentLoaded',async()=>{
   try{
     const data=await fetch('data/results/latest.json').then(r=>r.json());
-    const results=data.results||[];
+    // Normalise both old and new format
+    const allResults=(data.results||[]).map(m=>({
+      ...m,
+      quality_score: m.quality_score ?? m.overall_score ?? 0,
+      raw_speed: m.raw_speed ?? m.tests?.speed?.avg_tokens_per_sec ?? 0,
+      size_category: m.size_category ?? 'unknown',
+    }));
+    // Only show models that actually ran (quality > 0 OR speed > 0)
+    const results = allResults.filter(m => m.quality_score > 0 || m.raw_speed > 0);
     document.getElementById('last-update').textContent='Updated '+new Date(data.timestamp).toLocaleString();
 
     // Dynamic hero — show what actually matters right now

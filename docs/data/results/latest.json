@@ -1,6 +1,6 @@
 {
   "date": "2026-03-19",
-  "timestamp": "2026-03-19T22:32:43.433215",
+  "timestamp": "2026-03-19T22:40:00",
   "results": [
     {
       "model_id": "llama-3.1-8b",
@@ -50,7 +50,12 @@
           ]
         }
       },
-      "overall_score": 78.19
+      "overall_score": 78.19,
+      "quality_score": 78.19,
+      "raw_speed": 563.89,
+      "speed_score": 100.0,
+      "size_category": "small",
+      "context": "N/A"
     },
     {
       "model_id": "llama-3.1-70b",
@@ -68,7 +73,12 @@
           "details": []
         }
       },
-      "overall_score": 0.0
+      "overall_score": 0.0,
+      "quality_score": 0.0,
+      "raw_speed": 0,
+      "speed_score": 0.0,
+      "size_category": "large",
+      "context": "N/A"
     },
     {
       "model_id": "llama-3.3-70b",
@@ -118,7 +128,12 @@
           ]
         }
       },
-      "overall_score": 69.83
+      "overall_score": 69.83,
+      "quality_score": 69.83,
+      "raw_speed": 396.55,
+      "speed_score": 70.3,
+      "size_category": "large",
+      "context": "N/A"
     },
     {
       "model_id": "llama-guard-3-8b",
@@ -136,7 +151,12 @@
           "details": []
         }
       },
-      "overall_score": 0.0
+      "overall_score": 0.0,
+      "quality_score": 0.0,
+      "raw_speed": 0,
+      "speed_score": 0.0,
+      "size_category": "small",
+      "context": "N/A"
     },
     {
       "model_id": "gemini-flash",
@@ -154,7 +174,12 @@
           "details": []
         }
       },
-      "overall_score": 0.0
+      "overall_score": 0.0,
+      "quality_score": 0.0,
+      "raw_speed": 0,
+      "speed_score": 0.0,
+      "size_category": "unknown",
+      "context": "N/A"
     },
     {
       "model_id": "gemini-pro",
@@ -172,7 +197,12 @@
           "details": []
         }
       },
-      "overall_score": 0.0
+      "overall_score": 0.0,
+      "quality_score": 0.0,
+      "raw_speed": 0,
+      "speed_score": 0.0,
+      "size_category": "unknown",
+      "context": "N/A"
     }
   ]
 }
