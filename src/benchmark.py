@@ -23,11 +23,11 @@ OPENROUTER_API = "https://openrouter.ai/api/v1/chat/completions"
 REQUEST_DELAY = {"groq": 2, "google": 6, "openrouter": 2}
 
 REASONING_ANSWERS = {
-    "syllogism":     ["yes"],
-    "speed_math":    ["same"],
+    "syllogism":     ["yes", "correct", "true", "definitely"],
+    "speed_math":    ["same", "equal", "neither", "both"],
     "river_crossing":["chicken"],
-    "coin_flip":     ["1/2", "0.5", "50%"],
-    "counting":      ["11"],
+    "coin_flip":     ["1/2", "0.5", "50%", "50 percent", "one half", "half"],
+    "counting":      ["11", "eleven"],
 }
 
 def size_category(size_str):

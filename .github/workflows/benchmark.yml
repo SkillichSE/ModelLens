@@ -78,23 +78,7 @@ jobs:
           cd src
           python benchmark.py --providers groq --models gpt-oss-120b --merge
 
-      - name: Gemini 2.0 Flash
-        continue-on-error: true
-        timeout-minutes: 5
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: |
-          cd src
-          python benchmark.py --providers google --models gemini-2.0-flash --merge
 
-      - name: Gemini 2.0 Flash Lite
-        continue-on-error: true
-        timeout-minutes: 5
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: |
-          cd src
-          python benchmark.py --providers google --models gemini-2.0-flash-lite --merge
 
       - name: 🤖 Step 3.5 Flash
         continue-on-error: true
