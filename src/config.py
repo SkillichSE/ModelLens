@@ -19,19 +19,26 @@ MODELS = {
             "size": "70B",
             "context": "128k"
         },
-        "gemma2-9b": {
-            "id": "gemma2-9b-it",
-            "name": "Gemma 2 9B",
+        "llama-4-scout": {
+            "id": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "name": "Llama 4 Scout 17B",
             "provider": "Groq",
-            "size": "9B",
-            "context": "8k"
+            "size": "17Bx16E",
+            "context": "131k"
         },
-        "mixtral-8x7b": {
-            "id": "mixtral-8x7b-32768",
-            "name": "Mixtral 8x7B",
+        "deepseek-r1-llama": {
+            "id": "deepseek-r1-distill-llama-70b",
+            "name": "DeepSeek R1 Distill 70B",
             "provider": "Groq",
-            "size": "8x7B",
-            "context": "32k"
+            "size": "70B",
+            "context": "128k"
+        },
+        "qwen-qwq-32b": {
+            "id": "qwen-qwq-32b",
+            "name": "Qwen QwQ 32B",
+            "provider": "Groq",
+            "size": "32B",
+            "context": "128k"
         }
     },
     "google": {
@@ -171,7 +178,7 @@ NEWS_SOURCES = {
 # Rate limits (requests per minute)
 RATE_LIMITS = {
     "groq": 30,
-    "google": 60,
+    "google": 15,
     "openrouter": 20,
     "together": 20,
     "huggingface": 10
