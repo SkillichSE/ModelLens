@@ -46,7 +46,6 @@ jobs:
       # Если GOOGLE_API_KEY не выставлен в Secrets — шаг пропускается,
       # не падает и не тормозит весь workflow.
       - name: 🔵 Benchmark — Google
-        if: ${{ secrets.GOOGLE_API_KEY != '' }}
         continue-on-error: true        # Google 429 не роняет весь workflow
         timeout-minutes: 60            # Google worst-case ~56 мин, даём запас
         env:
