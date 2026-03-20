@@ -11,11 +11,141 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Model Benchmarker - Real-time Rankings</title>
-  <meta name="description" content="Daily automated benchmarks of free AI models. Compare speed, quality, and performance.">
+  <meta name="description" content="Daily automated benchmarks of AI models. Separate speed and quality rankings.">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Page-specific styles ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: var(--surface-2);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: var(--space-xl);
+    }
+    .tab-btn {
+      padding: 8px 20px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .tab-btn.active {
+      background: var(--background);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .leaderboard-panel { display: none; }
+    .leaderboard-panel.active { display: block; }
+
+    .size-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .size-small   { background: var(--chip-green-bg);  color: var(--chip-green-text); }
+    .size-medium  { background: var(--chip-yellow-bg); color: var(--chip-yellow-text); }
+    .size-large   { background: var(--chip-red-bg);    color: var(--chip-red-text); }
+    .size-unknown { background: var(--chip-gray-bg);   color: var(--chip-gray-text); }
+
+    .score-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: var(--space-md);
+    }
+    .score-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+    }
+    .score-line-label {
+      width: 90px;
+      color: var(--text-tertiary);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .score-line-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--surface-2);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .score-line-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .fill-quality     { background: var(--primary); }
+    .fill-code        { background: var(--success); }
+    .fill-reasoning   { background: #a78bfa; }
+    .fill-translation { background: var(--warning); }
+    .fill-speed       { background: #f472b6; }
+    .score-line-val {
+      width: 36px;
+      text-align: right;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .rank-badge {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 40px;
+    }
+    .rank-1 { color: #fbbf24; }
+    .rank-2 { color: #94a3b8; }
+    .rank-3 { color: #cd7c2f; }
+
+    .category-section { margin-bottom: var(--space-2xl); }
+    .category-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .legend {
+      display: flex;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-xl);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="header-content">
       <a href="index.html" class="logo">
@@ -35,220 +165,297 @@
     </div>
   </header>
 
-  <!-- Hero -->
   <div class="hero">
     <div class="container">
       <h1 class="hero-title">Real-time AI Model Rankings</h1>
       <p class="hero-subtitle">
-        Daily automated benchmarks of free AI models.<br>
-        Compare speed, code quality, and performance.
+        Daily automated benchmarks · Speed &amp; Quality ranked separately
       </p>
-      <p class="hero-meta" id="last-update">
-        Last updated: Loading...
-      </p>
+      <p class="hero-meta" id="last-update">Last updated: Loading...</p>
     </div>
   </div>
 
-  <!-- Main Content -->
   <main class="container">
-    
-    <!-- Top Stats -->
+
+    <!-- Stats row -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value" id="fastest-speed">-</div>
-        <div class="stat-label">Fastest (tok/s)</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="best-code">-</div>
-        <div class="stat-label">Best Code Score</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="total-models">-</div>
+        <div class="stat-value" id="stat-models">–</div>
         <div class="stat-label">Models Tested</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="total-tests">-</div>
-        <div class="stat-label">Tests Run</div>
+        <div class="stat-value" id="stat-fastest">–</div>
+        <div class="stat-label">Fastest (tok/s)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-quality">–</div>
+        <div class="stat-label">Top Quality Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-providers">–</div>
+        <div class="stat-label">Providers</div>
       </div>
     </div>
 
-    <!-- Champions Section -->
+    <!-- Champions -->
     <section style="margin-bottom: 48px;">
       <h2>🏆 Today's Champions</h2>
-      <div class="grid grid-3" id="champions-grid">
-        <!-- Populated by JS -->
-      </div>
+      <div class="grid grid-3" id="champions-grid"></div>
     </section>
 
-    <!-- Full Leaderboard -->
+    <!-- Leaderboard tabs -->
     <section>
-      <h2>📊 Full Leaderboard</h2>
-      <div class="grid grid-2" id="leaderboard">
-        <!-- Populated by JS -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-lg);">
+        <h2 style="margin-bottom:0;">📊 Leaderboards</h2>
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="quality">🎯 Quality</button>
+          <button class="tab-btn" data-tab="speed">⚡ Speed</button>
+        </div>
+      </div>
+
+      <!-- Quality legend -->
+      <div class="legend" id="quality-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Quality overall</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Code</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Reasoning</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>Translation</span>
+      </div>
+      <div class="legend" id="speed-legend" style="display:none;">
+        <span class="legend-item"><span class="legend-dot" style="background:#f472b6"></span>Tokens / second (higher = faster)</span>
+        <span class="legend-item" style="color:var(--text-tertiary);">Speed score normalised to 100 = fastest in this run</span>
+      </div>
+
+      <!-- Size category note -->
+      <p style="font-size:0.78rem; color:var(--text-tertiary); margin-bottom: var(--space-lg);">
+        Models grouped by size: 
+        <span class="size-badge size-small">small ≤10B</span>
+        <span class="size-badge size-medium">medium 10–50B</span>
+        <span class="size-badge size-large">large 50B+</span>
+        — comparing within the same tier is most meaningful.
+      </p>
+
+      <!-- Quality panel -->
+      <div class="leaderboard-panel active" id="panel-quality">
+        <div id="quality-board"></div>
+      </div>
+
+      <!-- Speed panel -->
+      <div class="leaderboard-panel" id="panel-speed">
+        <div id="speed-board"></div>
       </div>
     </section>
 
-    <!-- Latest News Preview -->
-    <section style="margin-top: 48px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <!-- News preview -->
+    <section style="margin-top:48px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
         <h2>📰 Latest AI News</h2>
         <a href="news.html" class="btn btn-outlined">View All</a>
       </div>
-      <div id="news-preview">
-        <!-- Populated by JS -->
-      </div>
+      <div id="news-preview"></div>
     </section>
 
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="footer-links">
       <a href="https://github.com/yourusername/ai-benchmarker" class="footer-link">GitHub</a>
-      <a href="#" class="footer-link">API Docs</a>
       <a href="#" class="footer-link">About</a>
     </div>
-    <p>
-      Open source project • Updated daily via GitHub Actions<br>
-      Made with ⚡ by the community
-    </p>
+    <p>Open source · Updated daily via GitHub Actions</p>
   </footer>
 
   <script src="app.js"></script>
   <script>
-    // Initialize home page
-    document.addEventListener('DOMContentLoaded', async () => {
+  // ── helpers ──────────────────────────────────────────────────────────────
+  function sizeBadge(cat) {
+    const map = { small:'size-small', medium:'size-medium', large:'size-large', unknown:'size-unknown' };
+    const label = { small:'small', medium:'medium', large:'large', unknown:'?' };
+    return `<span class="size-badge ${map[cat]||'size-unknown'}">${label[cat]||cat}</span>`;
+  }
+
+  function bar(val, cls) {
+    return `
+      <div class="score-line">
+        <span class="score-line-bar"><span class="score-line-fill ${cls}" style="width:${val}%"></span></span>
+        <span class="score-line-val">${Math.round(val)}</span>
+      </div>`;
+  }
+
+  function scoreLine(label, val, cls) {
+    return `
+      <div class="score-line">
+        <span class="score-line-label">${label}</span>
+        <span class="score-line-bar"><span class="score-line-fill ${cls}" style="width:${val}%"></span></span>
+        <span class="score-line-val">${Math.round(val)}</span>
+      </div>`;
+  }
+
+  function rankClass(i) {
+    return i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+  }
+
+  // ── build quality board (grouped by size) ────────────────────────────────
+  function buildQualityBoard(results) {
+    const sorted = [...results].sort((a,b) => (b.quality_score||0) - (a.quality_score||0));
+    const groups = { large:[], medium:[], small:[], unknown:[] };
+    sorted.forEach(m => (groups[m.size_category||'unknown']||groups.unknown).push(m));
+
+    const order = ['large','medium','small','unknown'];
+    const labels = { large:'Large models  (50B+)', medium:'Medium models  (10–50B)',
+                     small:'Small models  (≤ 10B)', unknown:'Unknown size' };
+    let html = '';
+    order.forEach(cat => {
+      const list = groups[cat];
+      if (!list.length) return;
+      html += `<div class="category-section">
+        <div class="category-label">${labels[cat]}</div>
+        <div class="grid grid-2">`;
+      list.forEach((m, i) => {
+        const q  = m.quality_score || 0;
+        const c  = m.tests?.code?.avg_score || 0;
+        const rs = m.tests?.reasoning?.score || 0;
+        const tr = m.tests?.translation?.avg_score || 0;
+        // rank within this category
+        const rankNum = i + 1;
+        const medal = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : `#${rankNum}`;
+        html += `
+          <div class="model-card">
+            <div class="model-header">
+              <div>
+                <div class="model-name">${m.model_name}${sizeBadge(m.size_category)}</div>
+                <div class="model-provider">${m.provider} · ${m.size}</div>
+              </div>
+              <div class="rank-badge ${rankClass(i)}">${medal}</div>
+            </div>
+            <div class="score-row">
+              ${scoreLine('Quality', q, 'fill-quality')}
+              ${scoreLine('Code', c, 'fill-code')}
+              ${scoreLine('Reasoning', rs, 'fill-reasoning')}
+              ${scoreLine('Translation', tr, 'fill-translation')}
+            </div>
+          </div>`;
+      });
+      html += `</div></div>`;
+    });
+    document.getElementById('quality-board').innerHTML = html;
+  }
+
+  // ── build speed board (all models, ranked by tok/s) ───────────────────────
+  function buildSpeedBoard(results) {
+    const sorted = [...results].sort((a,b) => (b.raw_speed||0) - (a.raw_speed||0));
+    const maxSpd = sorted[0]?.raw_speed || 1;
+    let html = '<div class="grid grid-2">';
+    sorted.forEach((m, i) => {
+      const spd = m.raw_speed || 0;
+      const pct = spd / maxSpd * 100;
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+      html += `
+        <div class="model-card">
+          <div class="model-header">
+            <div>
+              <div class="model-name">${m.model_name}${sizeBadge(m.size_category)}</div>
+              <div class="model-provider">${m.provider} · ${m.size}</div>
+            </div>
+            <div class="rank-badge ${rankClass(i)}">${medal}</div>
+          </div>
+          <div style="margin-top:var(--space-md);">
+            <div style="font-size:2rem; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums;">
+              ${Math.round(spd)} <span style="font-size:0.9rem; color:var(--text-tertiary); font-weight:400;">tok/s</span>
+            </div>
+            <div class="score-row" style="margin-top:8px;">
+              ${scoreLine('Speed', pct, 'fill-speed')}
+            </div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+    document.getElementById('speed-board').innerHTML = html;
+  }
+
+  // ── champions (fastest + best quality overall + best small) ──────────────
+  function buildChampions(results) {
+    const byQuality = [...results].sort((a,b) => (b.quality_score||0) - (a.quality_score||0));
+    const bySpeed   = [...results].sort((a,b) => (b.raw_speed||0)    - (a.raw_speed||0));
+    const smalls    = results.filter(r => r.size_category === 'small');
+    const bestSmall = smalls.sort((a,b) => (b.quality_score||0) - (a.quality_score||0))[0];
+
+    const champs = [
+      { emoji:'🎯', title:'Best Quality', model: byQuality[0], val: `${Math.round(byQuality[0]?.quality_score||0)}/100`, sub:'quality score' },
+      { emoji:'⚡', title:'Fastest',      model: bySpeed[0],   val: `${Math.round(bySpeed[0]?.raw_speed||0)} tok/s`, sub:'tokens per second' },
+      { emoji:'🌟', title:'Best Small',   model: bestSmall,    val: bestSmall ? `${Math.round(bestSmall.quality_score||0)}/100` : '–', sub:'quality ≤10B models' },
+    ];
+
+    const el = document.getElementById('champions-grid');
+    el.innerHTML = champs.map(ch => ch.model ? `
+      <div class="card" style="text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:8px;">${ch.emoji}</div>
+        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-tertiary); font-weight:600; margin-bottom:6px;">${ch.title}</div>
+        <div class="card-title">${ch.model.model_name}</div>
+        <div class="card-subtitle">${ch.model.provider}</div>
+        <div style="font-size:1.75rem; font-weight:700; color:var(--primary); margin:12px 0 4px;">${ch.val}</div>
+        <div style="font-size:0.75rem; color:var(--text-tertiary);">${ch.sub}</div>
+      </div>` : '').join('');
+  }
+
+  // ── main ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const data = await fetch('data/results/latest.json').then(r => r.json());
+      const results = data.results || [];
+
+      document.getElementById('last-update').textContent =
+        'Last updated: ' + new Date(data.timestamp).toLocaleString();
+
+      const providers = [...new Set(results.map(r => r.provider))];
+      document.getElementById('stat-models').textContent    = results.length;
+      document.getElementById('stat-fastest').textContent   = Math.round(Math.max(...results.map(r => r.raw_speed||0)));
+      document.getElementById('stat-quality').textContent   = Math.round(Math.max(...results.map(r => r.quality_score||0)));
+      document.getElementById('stat-providers').textContent = providers.length;
+
+      buildChampions(results);
+      buildQualityBoard(results);
+      buildSpeedBoard(results);
+
+      // News preview
       try {
-        // Load latest results
-        const response = await fetch('data/results/latest.json');
-        const data = await response.json();
-        
-        // Update last update time
-        const date = new Date(data.timestamp);
-        document.getElementById('last-update').textContent = 
-          `Last updated: ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
-        
-        // Calculate stats
-        const results = data.results;
-        const speeds = results.map(r => r.tests.speed?.avg_tokens_per_sec || 0);
-        const codeScores = results.map(r => r.tests.code?.avg_score || 0);
-        
-        document.getElementById('fastest-speed').textContent = 
-          Math.round(Math.max(...speeds));
-        document.getElementById('best-code').textContent = 
-          Math.round(Math.max(...codeScores));
-        document.getElementById('total-models').textContent = results.length;
-        document.getElementById('total-tests').textContent = results.length * 6; // 6 tests per model
-        
-        // Sort by overall score
-        const sorted = [...results].sort((a, b) => b.overall_score - a.overall_score);
-        
-        // Champions (top 3)
-        const championsGrid = document.getElementById('champions-grid');
-        sorted.slice(0, 3).forEach((model, index) => {
-          const medal = ['🥇', '🥈', '🥉'][index];
-          championsGrid.innerHTML += `
-            <div class="card">
-              <div style="text-align: center; margin-bottom: 16px;">
-                <div style="font-size: 3rem;">${medal}</div>
-              </div>
-              <h3 class="card-title" style="text-align: center;">${model.model_name}</h3>
-              <p class="card-subtitle" style="text-align: center;">${model.provider}</p>
-              <div style="margin-top: 16px;">
-                <div class="metric">
-                  <span class="metric-label">Speed</span>
-                  <span class="metric-value" style="font-size: 1.25rem;">
-                    ${Math.round(model.tests.speed?.avg_tokens_per_sec || 0)} tok/s
-                  </span>
-                </div>
-                <div class="metric" style="margin-top: 8px;">
-                  <span class="metric-label">Code Quality</span>
-                  <span class="metric-value" style="font-size: 1.25rem;">
-                    ${Math.round(model.tests.code?.avg_score || 0)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        
-        // Full leaderboard
-        const leaderboard = document.getElementById('leaderboard');
-        sorted.forEach((model, index) => {
-          const speedScore = model.tests.speed?.avg_tokens_per_sec || 0;
-          const codeScore = model.tests.code?.avg_score || 0;
-          
-          leaderboard.innerHTML += `
-            <div class="model-card">
-              <div class="model-header">
-                <div>
-                  <div class="model-name">${model.model_name}</div>
-                  <div class="model-provider">${model.provider} • ${model.size}</div>
-                </div>
-                <div class="model-rank">#${index + 1}</div>
-              </div>
-              
-              <div class="model-metrics">
-                <div class="metric">
-                  <span class="metric-label">Speed</span>
-                  <span class="metric-value">${Math.round(speedScore)}</span>
-                  <span style="font-size: 0.75rem; color: var(--text-tertiary);">tokens/sec</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Code</span>
-                  <span class="metric-value">${Math.round(codeScore)}%</span>
-                </div>
-              </div>
-              
-              <div style="margin-top: 16px;">
-                <div class="metric-label">Overall Score</div>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${model.overall_score}%"></div>
-                </div>
-                <div style="text-align: right; font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
-                  ${Math.round(model.overall_score)}/100
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        
-        // Load news preview
-        const newsResponse = await fetch('data/results/news.json');
-        const newsData = await newsResponse.json();
-        const newsPreview = document.getElementById('news-preview');
-        
-        newsData.items.slice(0, 3).forEach(item => {
-          newsPreview.innerHTML += `
+        const news = await fetch('data/results/news.json').then(r => r.json());
+        const el = document.getElementById('news-preview');
+        news.items.slice(0, 3).forEach(item => {
+          el.innerHTML += `
             <div class="news-item">
               <div class="news-date">${new Date(item.date).toLocaleDateString()}</div>
-              <h3 class="news-title">
-                <a href="${item.link}" target="_blank">${item.title}</a>
-              </h3>
+              <h3 class="news-title"><a href="${item.link}" target="_blank">${item.title}</a></h3>
               <p class="news-summary">${item.summary}</p>
               <span class="news-source">${item.source}</span>
-            </div>
-          `;
+            </div>`;
         });
-        
-      } catch (error) {
-        console.error('Error loading data:', error);
-        document.querySelector('.container').innerHTML = `
-          <div class="card" style="text-align: center; padding: 48px;">
-            <h2>⏳ First benchmark running...</h2>
-            <p style="color: var(--text-secondary); margin-top: 16px;">
-              Results will appear here after the first automated test completes.<br>
-              This usually takes 5-10 minutes.
-            </p>
-            <a href="https://github.com/yourusername/ai-benchmarker/actions" 
-               class="btn btn-primary" style="margin-top: 24px;">
-              View Progress on GitHub
-            </a>
-          </div>
-        `;
-      }
+      } catch(e) {}
+
+    } catch(err) {
+      console.error(err);
+      document.querySelector('main.container').innerHTML = `
+        <div class="card" style="text-align:center; padding:48px;">
+          <h2>⏳ First benchmark running...</h2>
+          <p style="color:var(--text-secondary); margin-top:16px;">
+            Results will appear here after the first automated test completes.
+          </p>
+        </div>`;
+    }
+  });
+
+  // ── tabs ──────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.leaderboard-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      document.getElementById('quality-legend').style.display = btn.dataset.tab === 'quality' ? '' : 'none';
+      document.getElementById('speed-legend').style.display   = btn.dataset.tab === 'speed'   ? '' : 'none';
     });
+  });
   </script>
+
   <script>
     // Theme toggle
     (function() {
