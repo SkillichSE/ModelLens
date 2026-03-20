@@ -139,16 +139,19 @@ TESTS = {
     "code": {
         "prime": {
             "prompt": "Write a Python function called is_prime(n) that returns True if n is prime, False otherwise. Return ONLY the function, no explanation.",
+            "func_name": "is_prime",
             "test_input": [2, 3, 4, 17, 100],
             "expected":   [True, True, False, True, False]
         },
         "fibonacci": {
             "prompt": "Write a Python function called fibonacci(n) that returns the nth Fibonacci number (0-indexed, so fibonacci(0)=0, fibonacci(1)=1, fibonacci(7)=13). Return ONLY the function, no explanation.",
+            "func_name": "fibonacci",
             "test_input": [0, 1, 7, 10],
             "expected":   [0, 1, 13, 55]
         },
         "palindrome": {
             "prompt": "Write a Python function called is_palindrome(s) that returns True if string s is a palindrome (ignore case and spaces). Return ONLY the function, no explanation.",
+            "func_name": "is_palindrome",
             "test_input": ["racecar", "hello", "A man a plan a canal Panama", "world"],
             "expected":   [True, False, True, False]
         }

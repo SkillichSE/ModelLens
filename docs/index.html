@@ -89,22 +89,22 @@
     <p style="color:var(--text-secondary);font-size:.875rem;">Other benchmarks compare paid models. We focus exclusively on what you can use for free right now.</p>
     <div class="why-grid">
       <div class="why-item">
-        <span class="why-icon">🧪</span>
+        <span class="why-icon"></span>
         <span class="why-title">Real code execution</span>
         <span class="why-text">Code is actually run against test cases — not just checked for syntax. A model that writes broken code scores 0.</span>
       </div>
       <div class="why-item">
-        <span class="why-icon">✅</span>
+        <span class="why-icon"></span>
         <span class="why-title">Verified answers</span>
         <span class="why-text">Reasoning questions have known correct answers. No subjective grading — either the model got it right or it didn't.</span>
       </div>
       <div class="why-item">
-        <span class="why-icon">📐</span>
+        <span class="why-icon"></span>
         <span class="why-title">Fair size categories</span>
         <span class="why-text">4B models compete against other small models, not 120B giants. Find the best in your weight class.</span>
       </div>
       <div class="why-item">
-        <span class="why-icon">🔄</span>
+        <span class="why-icon"></span>
         <span class="why-title">Updated daily</span>
         <span class="why-text">Runs every night via GitHub Actions. If a model gets deprecated or a new one launches, rankings update within 24h.</span>
       </div>
@@ -113,17 +113,17 @@
 
   <!-- Champions -->
   <section style="margin-bottom:48px;">
-    <h2>🏆 Today's Champions</h2>
+    <h2>Today's Champions</h2>
     <div class="grid grid-3" id="champions-grid"></div>
   </section>
 
   <!-- Leaderboard tabs -->
   <section>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);">
-      <h2 style="margin-bottom:0;">📊 Full Rankings</h2>
+      <h2 style="margin-bottom:0;">Full Rankings</h2>
       <div class="tab-bar">
-        <button class="tab-btn active" data-tab="quality">🎯 Quality</button>
-        <button class="tab-btn" data-tab="speed">⚡ Speed</button>
+        <button class="tab-btn active" data-tab="quality">Quality</button>
+        <button class="tab-btn" data-tab="speed">Speed</button>
       </div>
     </div>
 
@@ -153,7 +153,7 @@
   <!-- News preview -->
   <section style="margin-top:48px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-      <h2>📰 Latest AI News</h2>
+      <h2>Latest AI News</h2>
       <a href="news.html" class="btn btn-outlined">View All</a>
     </div>
     <div id="news-preview"></div>
@@ -210,7 +210,7 @@ function buildQualityBoard(results){
       const rs=m.tests?.reasoning?.score||0;
       const ins=m.tests?.instruction?.avg_score||0;
       const tr=m.tests?.translation?.avg_score||0;
-      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const medal=i===0?'#1':i===1?'#2':i===2?'#3':`#${i+1}`;
       html+=`<div class="model-card">
         <div class="model-header">
           <div>
@@ -243,7 +243,7 @@ function buildSpeedBoard(results){
   sorted.forEach((m,i)=>{
     const spd=m.raw_speed||0;
     const pct=spd/maxSpd*100;
-    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    const medal=i===0?'#1':i===1?'#2':i===2?'#3':`#${i+1}`;
     html+=`<div class="model-card">
       <div class="model-header">
         <div>
