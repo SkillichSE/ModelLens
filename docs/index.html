@@ -4,7 +4,7 @@
   <script>(function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Best Free AI Models Ranked — ModelArena</title>
+  <title>ModelArena</title>
   <meta name="description" content="Daily automated benchmark of the best free AI models. Compare quality, speed, and reasoning across Groq, OpenRouter, and Google. Updated every 24 hours.">
   <meta name="keywords" content="best free AI model, free LLM benchmark, free GPT alternative, Llama vs Gemini free, open source AI comparison, free API models 2025">
   <meta property="og:title" content="Best Free AI Models Ranked — ModelArena">
@@ -65,11 +65,8 @@
 
 <div class="hero">
   <div class="hero-inner">
-    <h1 class="hero-title">Best <em>Free</em> AI Models,<br>Ranked Daily</h1>
-    <p class="hero-subtitle">
-      Every model here is <strong>100% free</strong> — no credit card, no billing.<br>
-      Tested automatically every 24h with real code execution &amp; verified answers.
-    </p>
+    <h1 class="hero-title">ModelArena</h1>
+    <p class="hero-subtitle">Free AI models, ranked daily. No cards, no billing, no nonsense.</p>
     <p class="hero-meta" id="last-update">Last updated: Loading...</p>
   </div>
 </div>
@@ -294,7 +291,19 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{
     const data=await fetch('data/results/latest.json').then(r=>r.json());
     const results=data.results||[];
-    document.getElementById('last-update').textContent='Last updated: '+new Date(data.timestamp).toLocaleString();
+    document.getElementById('last-update').textContent='Updated '+new Date(data.timestamp).toLocaleString();
+
+    // Dynamic hero — show what actually matters right now
+    const top = [...results].sort((a,b)=>(b.quality_score||0)-(a.quality_score||0))[0];
+    const fastest = [...results].sort((a,b)=>(b.raw_speed||0)-(a.raw_speed||0))[0];
+    if(top) {
+      document.getElementById('hero-title').innerHTML =
+        `<em>${top.model_name}</em> leads quality &middot; <em>${fastest.model_name}</em> leads speed`;
+      document.title = `${top.model_name} #1 today &mdash; ModelArena`;
+    }
+    const freeCount = results.length;
+    document.getElementById('hero-subtitle').innerHTML =
+      `${freeCount} free models tested last night &mdash; real code execution, verified answers, zero paywalls.`;
     const providers=[...new Set(results.map(r=>r.provider))];
     document.getElementById('stat-models').textContent=results.length;
     document.getElementById('stat-fastest').textContent=Math.round(Math.max(...results.map(r=>r.raw_speed||0)));
