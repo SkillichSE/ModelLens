@@ -65,8 +65,8 @@
 
 <div class="hero">
   <div class="hero-inner">
-    <h1 class="hero-title">ModelArena</h1>
-    <p class="hero-subtitle">Free AI models, ranked daily. No cards, no billing, no nonsense.</p>
+    <h1 class="hero-title" id="hero-title">ModelArena</h1>
+    <p class="hero-subtitle" id="hero-subtitle">Free AI models, ranked daily. No cards, no billing, no nonsense.</p>
     <p class="hero-meta" id="last-update">Last updated: Loading...</p>
   </div>
 </div>
@@ -327,13 +327,15 @@ document.addEventListener('DOMContentLoaded',async()=>{
     const top = [...results].sort((a,b)=>(b.quality_score||0)-(a.quality_score||0))[0];
     const fastest = [...results].sort((a,b)=>(b.raw_speed||0)-(a.raw_speed||0))[0];
     if(top) {
-      document.getElementById('hero-title').innerHTML =
+      const heroEl = document.getElementById('hero-title');
+      if(heroEl) heroEl.innerHTML =
         `<em>${top.model_name}</em> leads quality &middot; <em>${fastest.model_name}</em> leads speed`;
-      document.title = `${top.model_name} #1 today &mdash; ModelArena`;
+      document.title = `${top.model_name} #1 today — ModelArena`;
     }
     const freeCount = results.length;
-    document.getElementById('hero-subtitle').innerHTML =
-      `${freeCount} free models tested last night &mdash; real code execution, verified answers, zero paywalls.`;
+    const subEl = document.getElementById('hero-subtitle');
+    if(subEl) subEl.innerHTML =
+      `${freeCount} free models tested last night — real code execution, verified answers, zero paywalls.`;
     const providers=[...new Set(results.map(r=>r.provider))];
     const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
     setEl('stat-models', results.length);
