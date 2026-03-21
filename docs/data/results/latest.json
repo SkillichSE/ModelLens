@@ -1,6 +1,6 @@
 {
   "date": "2026-03-21",
-  "timestamp": "2026-03-21T18:15:54.988866",
+  "timestamp": "2026-03-21T18:21:36.787342",
   "results": [
     {
       "model_id": "llama-3.1-8b",
@@ -9,27 +9,27 @@
       "size": "8B",
       "size_category": "small",
       "context": "128k",
-      "timestamp": "2026-03-21T18:14:35.848084",
+      "timestamp": "2026-03-21T18:20:18.289792",
       "tests": {
         "speed": {
-          "avg_tokens_per_sec": 530.95,
+          "avg_tokens_per_sec": 672.71,
           "details": [
             {
               "test": "simple",
-              "time": 0.202,
-              "tokens_per_sec": 286.87,
+              "time": 0.101,
+              "tokens_per_sec": 572.01,
               "tokens": 58
             },
             {
               "test": "medium",
-              "time": 0.473,
-              "tokens_per_sec": 651.25,
-              "tokens": 308
+              "time": 0.393,
+              "tokens_per_sec": 713.29,
+              "tokens": 280
             },
             {
               "test": "long",
-              "time": 0.532,
-              "tokens_per_sec": 654.72,
+              "time": 0.475,
+              "tokens_per_sec": 732.82,
               "tokens": 348
             }
           ]
@@ -162,13 +162,13 @@
               "test": "river_crossing",
               "correct": false,
               "score": 0,
-              "answer_given": "Grain."
+              "answer_given": "Grain"
             },
             {
               "test": "coin_flip",
               "correct": true,
               "score": 100,
-              "answer_given": "The probability of getting heads on the 4th flip is 1/2. \n\nThe previous flips do"
+              "answer_given": "The probability of getting heads on the 4th flip is 1/2. \n\nThe previous flips (3"
             },
             {
               "test": "counting",
@@ -222,7 +222,7 @@
         }
       },
       "quality_score": 70.0,
-      "raw_speed": 530.95,
+      "raw_speed": 672.71,
       "overall_score": 70.0,
       "speed_score": 100.0
     },
@@ -233,27 +233,27 @@
       "size": "70B",
       "size_category": "large",
       "context": "128k",
-      "timestamp": "2026-03-21T18:15:13.684341",
+      "timestamp": "2026-03-21T18:20:55.864100",
       "tests": {
         "speed": {
-          "avg_tokens_per_sec": 311.14,
+          "avg_tokens_per_sec": 455.98,
           "details": [
             {
               "test": "simple",
-              "time": 0.34,
-              "tokens_per_sec": 179.2,
+              "time": 0.135,
+              "tokens_per_sec": 452.31,
               "tokens": 61
             },
             {
               "test": "medium",
-              "time": 0.807,
-              "tokens_per_sec": 344.53,
-              "tokens": 278
+              "time": 0.714,
+              "tokens_per_sec": 376.75,
+              "tokens": 269
             },
             {
               "test": "long",
-              "time": 0.849,
-              "tokens_per_sec": 409.7,
+              "time": 0.646,
+              "tokens_per_sec": 538.88,
               "tokens": 348
             }
           ]
@@ -446,7 +446,7 @@
         }
       },
       "quality_score": 70.0,
-      "raw_speed": 311.14,
+      "raw_speed": 455.98,
       "overall_score": 70.0,
       "speed_score": 100.0
     }
