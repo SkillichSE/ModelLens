@@ -325,7 +325,7 @@ function scoreRow(label, val, fillClass, tip) {
   return `<div class="score-row">
     <span class="score-label">${label}</span>
     <span class="score-bar-wrap">
-      <span class="score-bar-fill ${fillClass}" style="width:${w}%"></span>
+      <div class="score-bar-fill ${fillClass}" style="width:${w}%;height:100%;border-radius:3px;"></div>
       <span class="score-tooltip">${tip}</span>
     </span>
     <span class="score-val">${Math.round(val)}</span>
@@ -410,7 +410,7 @@ function renderSpeedCard(m, i, maxSpd) {
       <div class="score-row">
         <span class="score-label">Speed</span>
         <span class="score-bar-wrap">
-          <span class="score-bar-fill fill-speed" style="width:${pct}%"></span>
+          <span class="score-bar-fill fill-speed" style="width:${pct}%;height:100%;border-radius:3px;display:block;"></span>
           <span class="score-tooltip">${Math.round(spd)} tok/s — ${pct.toFixed(0)}% of tier best</span>
         </span>
         <span class="score-val">${Math.round(pct)}</span>
