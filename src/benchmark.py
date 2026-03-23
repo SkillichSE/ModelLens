@@ -19,8 +19,6 @@ TIMEOUT_BY_PROVIDER = {
 }
 
 _OR_ROTATE_STATUSES = {429, 402}
-
-# ── Thinking model cleaner ──────────────────────────────────────────────────
 _THINK_RE = re.compile(r"<think>[\s\S]*?</think>", re.IGNORECASE)
 
 def strip_thinking(text):
@@ -28,9 +26,6 @@ def strip_thinking(text):
         return text
     cleaned = _THINK_RE.sub("", text).strip()
     return cleaned if cleaned else text
-
-
-# ── Size helpers ────────────────────────────────────────────────────────────
 def size_category(size_str):
     s = size_str.upper().replace(" ", "")
     if s in ("N/A", "UNKNOWN", ""):
@@ -47,9 +42,6 @@ def _bucket(b):
     if b <= 10:  return "small"
     if b <= 50:  return "medium"
     return "large"
-
-
-# ── OR key management ───────────────────────────────────────────────────────
 def _load_openrouter_keys():
     keys = []
     i = 1
@@ -64,9 +56,6 @@ def _load_openrouter_keys():
         keys.append(plain)
     return keys
 
-
-# ── Smart evaluators ─────────────────────────────────────────────────────────
-
 def eval_reasoning_smart(test_name, response):
     """
     Multi-signal reasoning evaluator.
@@ -78,21 +67,15 @@ def eval_reasoning_smart(test_name, response):
 
     text = response.strip()
     low  = text.lower()
-    # Take just the last sentence or short suffix to avoid picking up
-    # reasoning chain ("Let me think... the answer is Chicken")
-    # Try last non-empty line first, then full text
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     tail  = lines[-1].lower() if lines else low
 
     correct = False
 
     if test_name == "syllogism":
-        # "Yes", "Yes.", "Definitely yes", "All bloops are definitely lazzies. Yes."
         correct = bool(re.search(r'\byes\b', tail) or re.search(r'\byes\b', low[:40]))
 
     elif test_name == "speed_math":
-        # Both trains go 60 km/h → "Same", "Equal", "They are the same speed",
-        # "Neither is faster", "Both travel at 60"
         correct = bool(
             re.search(r'\bsame\b', tail) or
             re.search(r'\bequal\b', tail) or
@@ -102,11 +85,9 @@ def eval_reasoning_smart(test_name, response):
         )
 
     elif test_name == "river_crossing":
-        # "Chicken", "He takes the chicken", "Take the chicken first"
         correct = bool(re.search(r'\bchicken\b', tail) or re.search(r'\bchicken\b', low[:60]))
 
     elif test_name == "coin_flip":
-        # "1/2", "0.5", "50%", "50 percent", "one half", "1 in 2"
         correct = bool(
             re.search(r'1\s*/\s*2', tail) or
             re.search(r'\b0\.5\b', tail) or
@@ -116,7 +97,6 @@ def eval_reasoning_smart(test_name, response):
         )
 
     elif test_name == "counting":
-        # MISSISSIPPI has 11 letters
         correct = bool(re.search(r'\b11\b', tail) or re.search(r'\beleven\b', tail))
 
     return {
@@ -125,19 +105,14 @@ def eval_reasoning_smart(test_name, response):
         "answer_given": text[:120],
     }
 
-
 def eval_code_smart(test_name, response, fn_name):
     """Execute the function against test cases. Strips markdown and thinking."""
     cfg = TESTS["code"][test_name]
     if not response:
         return {"pass_rate": 0.0, "passed": 0, "total": len(cfg["expected"]),
                 "error": "empty response"}
-
-    # Strip markdown fences
     code_match = re.search(r"```(?:python)?\s*\n([\s\S]+?)```", response)
     code = code_match.group(1).strip() if code_match else response.strip()
-
-    # Extract only the function definition (skip preamble/explanation)
     lines, code_lines, found_def = code.splitlines(), [], False
     for line in lines:
         if line.strip().startswith("def ") or found_def:
@@ -175,14 +150,12 @@ def eval_code_smart(test_name, response, fn_name):
         "details":   results,
     }
 
-
 def eval_instruction_smart(test_name, response):
     if not response:
         return {"score": 0, "reason": "empty response"}
     cfg = TESTS["instruction"][test_name]
 
     if cfg["check"] == "json_keys":
-        # Try to find JSON anywhere in response (model may add explanation around it)
         m = re.search(r'\{[\s\S]*\}', response)
         if not m:
             return {"score": 0, "reason": "no JSON found"}
@@ -203,7 +176,6 @@ def eval_instruction_smart(test_name, response):
         return {"score": score, "found": len(numbered), "expected": cfg["count"]}
 
     if cfg["check"] == "sentence_count":
-        # Split on .!? but not on abbreviations (Mr., e.g.)
         sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', response.strip()) if s.strip()]
         diff = abs(len(sentences) - cfg["count"])
         score = 100 if diff == 0 else 75 if diff == 1 else 50 if diff == 2 else 0
@@ -211,13 +183,11 @@ def eval_instruction_smart(test_name, response):
 
     return {"score": 0, "reason": "unknown check type"}
 
-
 def eval_translation_smart(test_name, response):
     if not response:
         return {"score": 0, "reason": "empty response"}
     cfg = TESTS["translation"][test_name]
     text = response.strip()
-    # Remove common meta-phrases the model might add
     meta = re.compile(
         r"^(here('s| is) the translation[:\s]*|translation[:\s]*|"
         r"in (russian|spanish|english)[:\s]*)", re.I)
@@ -240,9 +210,6 @@ def eval_translation_smart(test_name, response):
         return {"score": score, "keywords_found": found}
 
     return {"score": 0}
-
-
-# ── Scoring formula ──────────────────────────────────────────────────────────
 def compute_quality(avg_code, reasoning_score, avg_instr, avg_trans):
     """
     Weighted quality score / 100.
@@ -259,12 +226,8 @@ def compute_quality(avg_code, reasoning_score, avg_instr, avg_trans):
         avg_trans       * 0.15,
         1
     )
-
-
-# ── Schedule logic ───────────────────────────────────────────────────────────
 def _should_run_full_today():
-    return datetime.now().weekday() == 0  # Monday
-
+    return datetime.now().weekday() == 0
 
 class ModelBenchmark:
     def __init__(self, active_providers=None, active_models=None, merge=False, mode="auto"):
@@ -307,14 +270,12 @@ class ModelBenchmark:
     def _reset_or_state(self):
         self._or_key_index = 0
         self._or_exhausted = False
-
-    # ── HTTP ────────────────────────────────────────────────────────────────
     def _openai_post(self, url, headers, model_id, prompt, timeout=25):
         data = {
             "model":       model_id,
             "messages":    [{"role": "user", "content": prompt}],
             "temperature": 0.1,
-            "max_tokens":  512,   # raised from 300 — some models truncated early
+            "max_tokens":  512,
         }
         start = time.time()
         try:
@@ -395,8 +356,6 @@ class ModelBenchmark:
     def _content(self, raw):
         """Strip <think> blocks for thinking models before any evaluation."""
         return strip_thinking(raw) if self._is_thinking else (raw or "")
-
-    # ── Run model ────────────────────────────────────────────────────────────
     def run_model(self, provider, model_info):
         delay = REQUEST_DELAY.get(provider, 2)
         mid   = model_info["id"]
@@ -415,8 +374,6 @@ class ModelBenchmark:
             "benchmark_mode": self.mode,
             "tests":          {},
         }
-
-        # ── Speed (always run) ───────────────────────────────────────────
         print("  speed...", end=" ", flush=True)
         speed_raw = []
         for name, prompt in TESTS["speed"].items():
@@ -441,10 +398,7 @@ class ModelBenchmark:
             result["quality_score"] = 0
             result["overall_score"] = 0
             return result
-
-        # ── Full quality (only on full-mode days) ───────────────────────
         if self.mode == "full":
-            # Code
             print("  code...", end=" ", flush=True)
             code_raw = []
             for name, cfg in TESTS["code"].items():
@@ -460,8 +414,6 @@ class ModelBenchmark:
             result["tests"]["code"] = {"avg_score": avg_code, "details": code_raw}
             print(f"done ({sum(x.get('passed',0) for x in code_raw)}/"
                   f"{sum(x.get('total',0) for x in code_raw)} passed)")
-
-            # Reasoning
             print("  reasoning...", end=" ", flush=True)
             reason_raw = []
             for name, cfg in TESTS["reasoning"].items():
@@ -476,8 +428,6 @@ class ModelBenchmark:
             result["tests"]["reasoning"] = {"score": reasoning_score, "correct": correct_n,
                                             "total": len(reason_raw), "details": reason_raw}
             print(f"done ({correct_n}/{len(reason_raw)} correct)")
-
-            # Instructions
             print("  instructions...", end=" ", flush=True)
             instr_raw = []
             for name, cfg in TESTS["instruction"].items():
@@ -491,8 +441,6 @@ class ModelBenchmark:
                         if instr_raw else 0
             result["tests"]["instruction"] = {"avg_score": avg_instr, "details": instr_raw}
             print(f"done ({avg_instr}/100)")
-
-            # Translation
             print("  translation...", end=" ", flush=True)
             trans_raw = []
             for name, cfg in TESTS["translation"].items():
@@ -512,7 +460,6 @@ class ModelBenchmark:
             result["overall_score"] = quality
 
         else:
-            # Speed-only: carry forward cached quality score
             quality = self._get_cached_quality(result["model_id"])
             result["quality_score"] = quality
             result["overall_score"] = quality
@@ -533,8 +480,6 @@ class ModelBenchmark:
         except Exception:
             pass
         return 0
-
-    # ── Benchmark runner ─────────────────────────────────────────────────────
     def run_benchmark(self):
         print("ModelLens Benchmark")
         print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -576,18 +521,13 @@ class ModelBenchmark:
                 if r:
                     self.results.append(r)
                     print(f"  -> quality={r['quality_score']}  speed={r['raw_speed']} tok/s")
-                # Small pause after rate-limited OR model
                 if provider == "openrouter" and r and r["raw_speed"] == 0:
                     time.sleep(8)
 
         self.save_results()
-
-    # ── Save ─────────────────────────────────────────────────────────────────
     def save_results(self):
         date_str = datetime.now().strftime("%Y-%m-%d")
         Path("../docs/data/results").mkdir(parents=True, exist_ok=True)
-
-        # Normalise speed score within tier
         for cat in ["small", "medium", "large", "unknown"]:
             speeds = [r["raw_speed"] for r in self.results
                       if r.get("size_category") == cat and r["raw_speed"] > 0]
@@ -634,7 +574,6 @@ class ModelBenchmark:
             json.dump(s_board, f, indent=2)
 
         print(f"\nSaved {date_str}.json ({len(self.results)} models) — mode: {self.mode}")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
