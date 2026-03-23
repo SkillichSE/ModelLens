@@ -333,7 +333,7 @@ function scoreRow(label, val, fillClass, tip) {
 
 /* ── compare toggle ────────────────────────────────────────── */
 function toggleCompare(btn) {
-  const m   = JSON.parse(atob(btn.dataset.model));
+  const m   = JSON.parse(decodeURIComponent(escape(atob(btn.dataset.model))));
   const key = m.model_id || m.model_name;
   if (compareMap.has(key)) {
     compareMap.delete(key);
@@ -360,7 +360,7 @@ function renderCard(m, i) {
   const tr  = m.tests?.translation?.avg_score || 0;
   const key = m.model_id || m.model_name;
   const sel = compareMap.has(key);
-  const enc = btoa(JSON.stringify(m));
+  const enc = btoa(unescape(encodeURIComponent(JSON.stringify(m))));
   const rm  = rankMeta(i);
 
   return `<div class="model-card ${cardClass(i)}">
