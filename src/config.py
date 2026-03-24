@@ -1,9 +1,6 @@
-                                 
-                           
-
 MODELS = {
     "groq": {
-                                                                             
+
         "llama-3.1-8b": {
             "id": "llama-3.1-8b-instant",
             "name": "Llama 3.1 8B Instant",
@@ -28,7 +25,7 @@ MODELS = {
             "provider": "Groq", "size": "20B",
             "size_category": "medium", "context": "131k"
         },
-                                                                             
+
         "llama-4-scout": {
             "id": "meta-llama/llama-4-scout-17b-16e-instruct",
             "name": "Llama 4 Scout 17B",
@@ -50,10 +47,7 @@ MODELS = {
     },
 
     "openrouter": {
-                                                   
-                                                                                      
 
-                                                                            
         "nemotron-super-120b": {
             "id": "nvidia/nemotron-3-super-120b-a12b:free",
             "name": "Nemotron 3 Super 120B",
@@ -79,7 +73,6 @@ MODELS = {
             "size_category": "small", "context": "128k"
         },
 
-                                                                            
         "trinity-large": {
             "id": "arcee-ai/trinity-large-preview:free",
             "name": "Trinity Large 400B",
@@ -93,7 +86,6 @@ MODELS = {
             "size_category": "medium", "context": "131k"
         },
 
-                                                                            
         "step-3.5-flash": {
             "id": "stepfun/step-3.5-flash:free",
             "name": "Step 3.5 Flash 196B",
@@ -101,7 +93,6 @@ MODELS = {
             "size_category": "large", "context": "256k"
         },
 
-                                                                            
         "gemma-3-27b": {
             "id": "google/gemma-3-27b-it:free",
             "name": "Gemma 3 27B",
@@ -133,7 +124,6 @@ MODELS = {
             "size_category": "small", "context": "8k"
         },
 
-                                                                            
         "lfm-2.5-instruct": {
             "id": "liquid/lfm-2.5-1.2b-instruct:free",
             "name": "LFM 2.5 1.2B Instruct",
@@ -147,7 +137,6 @@ MODELS = {
             "size_category": "small", "context": "32k"
         },
 
-                                                                            
         "llama-3.3-70b": {
             "id": "meta-llama/llama-3.3-70b-instruct:free",
             "name": "Llama 3.3 70B",
@@ -223,7 +212,7 @@ MODELS = {
     },
 
     "cerebras": {
-                                             
+
         "llama-3.1-8b": {
             "id": "llama3.1-8b",
             "name": "Llama 3.1 8B",
@@ -245,7 +234,7 @@ MODELS = {
     },
 
     "together": {
-                                                   
+
         "llama-3.3-70b": {
             "id": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
             "name": "Llama 3.3 70B",
@@ -267,7 +256,7 @@ MODELS = {
     },
 
     "google": {
-                                                         
+
         "gemini-2.5-flash": {
             "id": "gemini-2.5-flash",
             "name": "Gemini 2.5 Flash",
@@ -278,7 +267,7 @@ MODELS = {
             "id": "gemini-2.5-flash-lite",
             "name": "Gemini 2.5 Flash-Lite",
             "provider": "Google", "size": "N/A",
-            "size_category": "small", "context": "1048k"
+            "size_category": "medium", "context": "1048k"
         },
         "gemma-3-27b-google": {
             "id": "gemma-3-27b-it",
@@ -289,7 +278,7 @@ MODELS = {
     },
 
     "sambanova": {
-                                                                  
+
         "llama-4-maverick": {
             "id": "Meta-Llama-4-Maverick-17B-128E-Instruct",
             "name": "Llama 4 Maverick 17B",
@@ -330,87 +319,310 @@ MODELS = {
 
 }
 
-TESTS = {
-    "speed": {
-        "simple": "Write a haiku about artificial intelligence.",
-        "medium": "Explain quantum computing in simple terms (200 words).",
-        "long":   "Write a detailed tutorial on Python decorators with examples (300 words).",
-    },
-    "code": {
-        "prime": {
-            "prompt": "Write a Python function called is_prime(n) that returns True if n is prime, False otherwise. Return ONLY the function, no explanation.",
-            "fn": "is_prime",
-            "test_input": [2, 3, 4, 17, 100],
-            "expected":   [True, True, False, True, False]
-        },
-        "fibonacci": {
-            "prompt": "Write a Python function called fibonacci(n) that returns the nth Fibonacci number (0-indexed, so fibonacci(0)=0, fibonacci(1)=1, fibonacci(7)=13). Return ONLY the function, no explanation.",
-            "fn": "fibonacci",
-            "test_input": [0, 1, 7, 10],
-            "expected":   [0, 1, 13, 55]
-        },
-        "palindrome": {
-            "prompt": "Write a Python function called is_palindrome(s) that returns True if string s is a palindrome (ignore case and spaces). Return ONLY the function, no explanation.",
-            "fn": "is_palindrome",
-            "test_input": ["racecar", "hello", "A man a plan a canal Panama", "world"],
-            "expected":   [True, False, True, False]
-        }
-    },
-    "reasoning": {
-        "syllogism": {
-            "prompt": "If all bloops are razzies and all razzies are lazzies, are all bloops definitely lazzies? Answer with just Yes or No.",
-            "answer": "yes"
-        },
-        "speed_math": {
-            "prompt": "A train travels 120 km in 2 hours. Another train travels 180 km in 3 hours. Which is faster? Answer with: First, Second, or Same.",
-            "answer": "same"
-        },
-        "river_crossing": {
-            "prompt": "A farmer has a fox, a chicken, and a bag of grain. He needs to cross a river with a boat that can only carry him and one item. The fox eats the chicken if left alone, and the chicken eats the grain. What does he take first? Answer with one word: Fox, Chicken, or Grain.",
-            "answer": "chicken"
-        },
-        "coin_flip": {
-            "prompt": "I flip a fair coin 3 times and get heads each time. What is the probability of getting heads on the 4th flip? Answer with a fraction like 1/2.",
-            "answer": "1/2"
-        },
-        "counting": {
-            "prompt": "How many letters are in the word MISSISSIPPI? Answer with just the number.",
-            "answer": "11"
-        }
-    },
-    "instruction": {
-        "json": {
-            "prompt": 'Return a JSON object with exactly these keys: "name", "age", "city". Use any values you like. Return ONLY valid JSON, nothing else.',
-            "check": "json_keys",
-            "required_keys": ["name", "age", "city"]
-        },
-        "list": {
-            "prompt": "List exactly 5 programming languages, one per line, numbered 1-5. No extra text.",
-            "check": "numbered_list",
-            "count": 5
-        },
-        "word_count": {
-            "prompt": "Write a description of Paris in exactly 3 sentences. No more, no less.",
-            "check": "sentence_count",
-            "count": 3
-        }
-    },
-    "translation": {
-        "en_ru": {
-            "prompt": "Translate to Russian: 'Artificial intelligence is changing the world.' Return only the translation.",
-            "check": "cyrillic"
-        },
-        "ru_en": {
-            "prompt": "Translate to English: 'Машинное обучение помогает решать сложные задачи.' Return only the translation.",
-            "check": "latin"
-        },
-        "en_es": {
-            "prompt": "Translate to Spanish: 'The future belongs to those who believe in the beauty of their dreams.' Return only the translation.",
-            "check": "spanish_words",
-            "keywords": ["el", "la", "los", "las", "que", "de", "su", "sus", "futuro", "sueños", "pertenece", "creen", "belleza"]
-        }
-    }
+# ---------------------------------------------------------------------------
+# Tiered tests: small / medium / large
+#
+# Philosophy:
+#   small  (≤10B)  — basic functionality: can the model follow instructions,
+#                    do simple arithmetic, write a trivial function?
+#   medium (11-50B) — standard tasks: solid coding, multi-step reasoning,
+#                    structured output, translation.
+#   large  (>50B)  — advanced tasks: algorithmic complexity, nuanced logic,
+#                    harder translation, richer instruction following.
+#
+# Every tier shares the same speed prompts (measuring tok/s, not quality),
+# but code / reasoning / instruction / translation tasks differ in depth.
+# ---------------------------------------------------------------------------
+
+# Speed prompts are the same for all tiers — we measure raw throughput.
+_SPEED_TESTS = {
+    "simple": "Write a haiku about artificial intelligence.",
+    "medium": "Explain quantum computing in simple terms (200 words).",
+    "long": "Write a detailed tutorial on Python decorators with examples (300 words).",
 }
+
+TESTS_BY_TIER = {
+    # -----------------------------------------------------------------------
+    # SMALL  ≤10B  — straightforward tasks; models should handle these well
+    # -----------------------------------------------------------------------
+    "small": {
+        "speed": _SPEED_TESTS,
+        "code": {
+            "fibonacci": {
+                "prompt": (
+                    "Write a Python function called fibonacci(n) that returns the nth Fibonacci number "
+                    "(0-indexed: fibonacci(0)=0, fibonacci(1)=1, fibonacci(2)=1, fibonacci(6)=8). "
+                    "Return ONLY the function, no explanation."
+                ),
+                "fn": "fibonacci",
+                # Inputs chosen to discriminate 0-indexed vs 1-indexed implementations
+                "test_input": [0, 1, 2, 6, 9],
+                "expected": [0, 1, 1, 8, 34],
+            },
+            "palindrome": {
+                "prompt": (
+                    "Write a Python function called is_palindrome(s) that returns True if string s "
+                    "is a palindrome (ignore case and spaces). Return ONLY the function, no explanation."
+                ),
+                "fn": "is_palindrome",
+                "test_input": ["racecar", "hello", "A man a plan a canal Panama", "world"],
+                "expected": [True, False, True, False],
+            },
+        },
+        "reasoning": {
+            "syllogism": {
+                "prompt": "If all bloops are razzies and all razzies are lazzies, are all bloops definitely lazzies? Answer with just Yes or No.",
+                "answer": "yes",
+            },
+            "speed_math": {
+                "prompt": "A train travels 120 km in 2 hours. Another train travels 180 km in 3 hours. Which is faster? Answer with: First, Second, or Same.",
+                "answer": "same",
+            },
+            "counting": {
+                "prompt": "How many letters are in the word MISSISSIPPI? Answer with just the number.",
+                "answer": "11",
+            },
+        },
+        "instruction": {
+            "json": {
+                "prompt": 'Return a JSON object with exactly these keys: "name", "age", "city". Use any values you like. Return ONLY valid JSON, nothing else.',
+                "check": "json_keys",
+                "required_keys": ["name", "age", "city"],
+            },
+            "list": {
+                "prompt": "List exactly 5 programming languages, one per line, numbered 1-5. No extra text.",
+                "check": "numbered_list",
+                "count": 5,
+            },
+        },
+        "translation": {
+            "en_ru": {
+                "prompt": "Translate to Russian: 'Artificial intelligence is changing the world.' Return only the translation.",
+                "check": "cyrillic",
+            },
+            "ru_en": {
+                "prompt": "Translate to English: 'Машинное обучение помогает решать сложные задачи.' Return only the translation.",
+                "check": "latin",
+            },
+        },
+    },
+
+    # -----------------------------------------------------------------------
+    # MEDIUM  11–50B  — standard professional tasks
+    # -----------------------------------------------------------------------
+    "medium": {
+        "speed": _SPEED_TESTS,
+        "code": {
+            "prime": {
+                "prompt": (
+                    "Write a Python function called is_prime(n) that returns True if n is prime, "
+                    "False otherwise. Return ONLY the function, no explanation."
+                ),
+                "fn": "is_prime",
+                "test_input": [2, 3, 4, 17, 100],
+                "expected": [True, True, False, True, False],
+            },
+            "fibonacci": {
+                "prompt": (
+                    "Write a Python function called fibonacci(n) that returns the nth Fibonacci number "
+                    "(0-indexed: fibonacci(0)=0, fibonacci(1)=1, fibonacci(2)=1, fibonacci(6)=8). "
+                    "Return ONLY the function, no explanation."
+                ),
+                "fn": "fibonacci",
+                "test_input": [0, 1, 2, 6, 9],
+                "expected": [0, 1, 1, 8, 34],
+            },
+            "palindrome": {
+                "prompt": (
+                    "Write a Python function called is_palindrome(s) that returns True if string s "
+                    "is a palindrome (ignore case and spaces). Return ONLY the function, no explanation."
+                ),
+                "fn": "is_palindrome",
+                "test_input": ["racecar", "hello", "A man a plan a canal Panama", "world"],
+                "expected": [True, False, True, False],
+            },
+        },
+        "reasoning": {
+            "syllogism": {
+                "prompt": "If all bloops are razzies and all razzies are lazzies, are all bloops definitely lazzies? Answer with just Yes or No.",
+                "answer": "yes",
+            },
+            "speed_math": {
+                "prompt": "A train travels 120 km in 2 hours. Another train travels 180 km in 3 hours. Which is faster? Answer with: First, Second, or Same.",
+                "answer": "same",
+            },
+            "river_crossing": {
+                "prompt": "A farmer has a fox, a chicken, and a bag of grain. He needs to cross a river with a boat that can only carry him and one item. The fox eats the chicken if left alone, and the chicken eats the grain. What does he take first? Answer with one word: Fox, Chicken, or Grain.",
+                "answer": "chicken",
+            },
+            "coin_flip": {
+                "prompt": "I flip a fair coin 3 times and get heads each time. What is the probability of getting heads on the 4th flip? Answer with a fraction like 1/2.",
+                "answer": "1/2",
+            },
+            "counting": {
+                "prompt": "How many letters are in the word MISSISSIPPI? Answer with just the number.",
+                "answer": "11",
+            },
+        },
+        "instruction": {
+            "json": {
+                "prompt": 'Return a JSON object with exactly these keys: "name", "age", "city". Use any values you like. Return ONLY valid JSON, nothing else.',
+                "check": "json_keys",
+                "required_keys": ["name", "age", "city"],
+            },
+            "list": {
+                "prompt": "List exactly 5 programming languages, one per line, numbered 1-5. No extra text.",
+                "check": "numbered_list",
+                "count": 5,
+            },
+            "word_count": {
+                "prompt": "Write a description of Paris in exactly 3 sentences. No more, no less.",
+                "check": "sentence_count",
+                "count": 3,
+            },
+        },
+        "translation": {
+            "en_ru": {
+                "prompt": "Translate to Russian: 'Artificial intelligence is changing the world.' Return only the translation.",
+                "check": "cyrillic",
+            },
+            "ru_en": {
+                "prompt": "Translate to English: 'Машинное обучение помогает решать сложные задачи.' Return only the translation.",
+                "check": "latin",
+            },
+            "en_es": {
+                "prompt": "Translate to Spanish: 'The future belongs to those who believe in the beauty of their dreams.' Return only the translation.",
+                "check": "spanish_words",
+                "keywords": ["el", "la", "los", "las", "que", "de", "su", "sus", "futuro", "sueños", "pertenece",
+                             "creen", "belleza"],
+            },
+        },
+    },
+
+    # -----------------------------------------------------------------------
+    # LARGE  >50B  — demanding tasks; frontier models should excel here
+    # -----------------------------------------------------------------------
+    "large": {
+        "speed": _SPEED_TESTS,
+        "code": {
+            "prime": {
+                "prompt": (
+                    "Write a Python function called is_prime(n) that returns True if n is prime, "
+                    "False otherwise. Return ONLY the function, no explanation."
+                ),
+                "fn": "is_prime",
+                "test_input": [2, 3, 4, 17, 100],
+                "expected": [True, True, False, True, False],
+            },
+            "fibonacci": {
+                "prompt": (
+                    "Write a Python function called fibonacci(n) that returns the nth Fibonacci number "
+                    "(0-indexed: fibonacci(0)=0, fibonacci(1)=1, fibonacci(2)=1, fibonacci(6)=8). "
+                    "Return ONLY the function, no explanation."
+                ),
+                "fn": "fibonacci",
+                "test_input": [0, 1, 2, 6, 9],
+                "expected": [0, 1, 1, 8, 34],
+            },
+            "palindrome": {
+                "prompt": (
+                    "Write a Python function called is_palindrome(s) that returns True if string s "
+                    "is a palindrome (ignore case and spaces). Return ONLY the function, no explanation."
+                ),
+                "fn": "is_palindrome",
+                "test_input": ["racecar", "hello", "A man a plan a canal Panama", "world"],
+                "expected": [True, False, True, False],
+            },
+            "binary_search": {
+                "prompt": (
+                    "Write a Python function called binary_search(arr, target) that returns the index "
+                    "of target in the sorted list arr, or -1 if not found. Return ONLY the function, no explanation."
+                ),
+                "fn": "binary_search",
+                "test_input": [([1, 3, 5, 7, 9], 5), ([1, 3, 5, 7, 9], 6), ([2, 4, 6], 2), ([], 1)],
+                "expected": [2, -1, 0, -1],
+            },
+        },
+        "reasoning": {
+            "syllogism": {
+                "prompt": "If all bloops are razzies and all razzies are lazzies, are all bloops definitely lazzies? Answer with just Yes or No.",
+                "answer": "yes",
+            },
+            "speed_math": {
+                "prompt": "A train travels 120 km in 2 hours. Another train travels 180 km in 3 hours. Which is faster? Answer with: First, Second, or Same.",
+                "answer": "same",
+            },
+            "river_crossing": {
+                "prompt": "A farmer has a fox, a chicken, and a bag of grain. He needs to cross a river with a boat that can only carry him and one item. The fox eats the chicken if left alone, and the chicken eats the grain. What does he take first? Answer with one word: Fox, Chicken, or Grain.",
+                "answer": "chicken",
+            },
+            "coin_flip": {
+                "prompt": "I flip a fair coin 3 times and get heads each time. What is the probability of getting heads on the 4th flip? Answer with a fraction like 1/2.",
+                "answer": "1/2",
+            },
+            "counting": {
+                "prompt": "How many letters are in the word MISSISSIPPI? Answer with just the number.",
+                "answer": "11",
+            },
+            "knights_knaves": {
+                "prompt": (
+                    "On an island, knights always tell the truth and knaves always lie. "
+                    "Person A says: 'B is a knave.' Person B says: 'A and I are both knights.' "
+                    "What is A? Answer with one word: Knight or Knave."
+                ),
+                "answer": "knight",
+            },
+        },
+        "instruction": {
+            "json": {
+                "prompt": 'Return a JSON object with exactly these keys: "name", "age", "city". Use any values you like. Return ONLY valid JSON, nothing else.',
+                "check": "json_keys",
+                "required_keys": ["name", "age", "city"],
+            },
+            "list": {
+                "prompt": "List exactly 5 programming languages, one per line, numbered 1-5. No extra text.",
+                "check": "numbered_list",
+                "count": 5,
+            },
+            "word_count": {
+                "prompt": "Write a description of Paris in exactly 3 sentences. No more, no less.",
+                "check": "sentence_count",
+                "count": 3,
+            },
+            "json_nested": {
+                "prompt": (
+                    'Return a JSON object with key "user" whose value is an object containing '
+                    '"name" (string), "scores" (array of 3 numbers), and "active" (boolean). '
+                    'Return ONLY valid JSON, nothing else.'
+                ),
+                "check": "json_nested_user",
+            },
+        },
+        "translation": {
+            "en_ru": {
+                "prompt": "Translate to Russian: 'Artificial intelligence is changing the world.' Return only the translation.",
+                "check": "cyrillic",
+            },
+            "ru_en": {
+                "prompt": "Translate to English: 'Машинное обучение помогает решать сложные задачи.' Return only the translation.",
+                "check": "latin",
+            },
+            "en_es": {
+                "prompt": "Translate to Spanish: 'The future belongs to those who believe in the beauty of their dreams.' Return only the translation.",
+                "check": "spanish_words",
+                "keywords": ["el", "la", "los", "las", "que", "de", "su", "sus", "futuro", "sueños", "pertenece",
+                             "creen", "belleza"],
+            },
+        },
+    },
+}
+
+# unknown-tier models fall back to the medium tier
+TESTS_BY_TIER["unknown"] = TESTS_BY_TIER["medium"]
+
+# Legacy alias so any code still importing TESTS directly keeps working.
+# Points to the medium tier as a safe default.
+TESTS = TESTS_BY_TIER["medium"]
 
 RATE_LIMITS = {
     "groq": 30,

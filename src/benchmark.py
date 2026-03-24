@@ -2,30 +2,35 @@ import os, re, json, time, subprocess, argparse
 from datetime import datetime
 from pathlib import Path
 import requests
-from config import MODELS, TESTS
+from config import MODELS, TESTS, TESTS_BY_TIER
 
-GROQ_API       = "https://api.groq.com/openai/v1/chat/completions"
+
+def get_tests_for_tier(tier):
+    """Return the test-suite dict for a given size_category tier."""
+    return TESTS_BY_TIER.get(tier, TESTS_BY_TIER.get("medium", TESTS))
+
+
+GROQ_API = "https://api.groq.com/openai/v1/chat/completions"
 OPENROUTER_API = "https://openrouter.ai/api/v1/chat/completions"
-CEREBRAS_API   = "https://api.cerebras.ai/v1/chat/completions"
-TOGETHER_API   = "https://api.together.xyz/v1/chat/completions"
-SAMBANOVA_API  = "https://api.sambanova.ai/v1/chat/completions"
+CEREBRAS_API = "https://api.cerebras.ai/v1/chat/completions"
+TOGETHER_API = "https://api.together.xyz/v1/chat/completions"
+SAMBANOVA_API = "https://api.sambanova.ai/v1/chat/completions"
 
 REQUEST_DELAY = {"groq": 2, "google": 6, "openrouter": 4, "cerebras": 1, "together": 2}
 
-                                                                               
 import random
 
 REASONING_ANSWERS = {
-    "syllogism":      ["yes", "correct", "true", "definitely"],
-    "speed_math":     ["same", "equal", "neither", "both"],
+    "syllogism": ["yes", "correct", "true", "definitely"],
+    "speed_math": ["same", "equal", "neither", "both"],
     "river_crossing": ["chicken"],
-    "coin_flip":      ["1/2", "0.5", "50%", "50 percent", "one half", "half"],
-    "counting":       ["11", "eleven"],
+    "coin_flip": ["1/2", "0.5", "50%", "50 percent", "one half", "half"],
+    "counting": ["11", "eleven"],
+    "knights_knaves": ["knight"],
 }
 
 _OR_ROTATE_STATUSES = {429, 402}
-                                                            
-                                            
+
 _OR_KEY_COOLDOWN = 62
 _FATAL_MODEL_PATTERNS = (
     "decommissioned",
@@ -37,7 +42,14 @@ _FATAL_MODEL_PATTERNS = (
 )
 
 
-def size_category(size_str):
+def size_category(size_str, config_category=None):
+    """Determine size category.
+    If config_category is provided and not 'unknown', use it directly —
+    the config author knows better (e.g. Gemini 2.5 Flash has size='N/A').
+    Only fall back to heuristic parsing when no config value is present.
+    """
+    if config_category and config_category != "unknown":
+        return config_category
     s = size_str.upper().replace(" ", "")
     if s in ("N/A", "UNKNOWN", ""):
         return "unknown"
@@ -51,6 +63,7 @@ def size_category(size_str):
 
 
 def _bucket(b):
+    # small: ≤10B  |  medium: 11–50B  |  large: >50B
     if b <= 10:  return "small"
     if b <= 50:  return "medium"
     return "large"
@@ -58,7 +71,7 @@ def _bucket(b):
 
 def _load_openrouter_keys():
     keys = []
-                                                                
+
     i = 1
     while True:
         k = os.getenv(f"OPENROUTER_API_KEY_{i}", "").strip()
@@ -66,7 +79,7 @@ def _load_openrouter_keys():
             break
         keys.append(k)
         i += 1
-                                          
+
     plain = os.getenv("OPENROUTER_API_KEY", "").strip()
     if plain and plain not in keys:
         keys.append(plain)
@@ -75,19 +88,19 @@ def _load_openrouter_keys():
 
 class ModelBenchmark:
     def __init__(self, active_providers=None, active_models=None, merge=False):
-        self.groq_key         = os.getenv("GROQ_API_KEY")
-        self.google_key       = os.getenv("GOOGLE_API_KEY")
-        self.cerebras_key     = os.getenv("CEREBRAS_API_KEY")
-        self.together_key     = os.getenv("TOGETHER_API_KEY")
-        self.sambanova_key    = os.getenv("SAMBANOVA_API_KEY")
+        self.groq_key = os.getenv("GROQ_API_KEY")
+        self.google_key = os.getenv("GOOGLE_API_KEY")
+        self.cerebras_key = os.getenv("CEREBRAS_API_KEY")
+        self.together_key = os.getenv("TOGETHER_API_KEY")
+        self.sambanova_key = os.getenv("SAMBANOVA_API_KEY")
         self._openrouter_keys = _load_openrouter_keys()
-        self._or_key_index    = 0
-                                                                     
+        self._or_key_index = 0
+
         self._or_key_limited_until = {}
         self.active_providers = active_providers
-        self.active_models    = active_models
-        self.merge            = merge
-        self.results          = []
+        self.active_models = active_models
+        self.merge = merge
+        self.results = []
 
     @property
     def openrouter_key(self):
@@ -116,7 +129,7 @@ class ModelBenchmark:
         """Check all OR keys in parallel with a tiny prompt. Returns True if at least one works."""
         import concurrent.futures
         now = time.time()
-                                               
+
         candidates = [i for i, k in enumerate(self._openrouter_keys)
                       if now >= self._or_key_limited_until.get(i, 0)]
         if not candidates:
@@ -150,7 +163,7 @@ class ModelBenchmark:
                     self._mark_or_key_limited(idx)
                 elif status == 200:
                     any_ok = True
-                                                                                        
+
         return any_ok
 
     def _openai_post(self, url, headers, model_id, prompt, timeout=45):
@@ -176,7 +189,8 @@ class ModelBenchmark:
             try:
                 msg = r.json().get("error", {}).get("message", "")
                 if msg: err += f" - {msg[:120]}"
-            except Exception: pass
+            except Exception:
+                pass
             return {"success": False, "error": err}
         except Exception as e:
             return {"success": False, "error": str(e)[:120]}
@@ -185,8 +199,8 @@ class ModelBenchmark:
         if not self.groq_key:
             return {"success": False, "error": "GROQ_API_KEY not set"}
         return self._openai_post(GROQ_API,
-            {"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"},
-            model_id, prompt)
+                                 {"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"},
+                                 model_id, prompt)
 
     def call_google(self, model_id, prompt):
         if not self.google_key:
@@ -214,7 +228,8 @@ class ModelBenchmark:
             try:
                 msg = r.json().get("error", {}).get("message", "")
                 if msg: err += f" - {msg[:120]}"
-            except Exception: pass
+            except Exception:
+                pass
             return {"success": False, "error": err}
         except Exception as e:
             return {"success": False, "error": str(e)[:120]}
@@ -222,7 +237,7 @@ class ModelBenchmark:
     def call_openrouter(self, model_id, prompt):
         if not self._openrouter_keys:
             return {"success": False, "error": "no OPENROUTER_API_KEY configured"}
-                                              
+
         start_idx = self._next_available_or_key()
         if start_idx is None:
             return {"success": False, "error": "all keys at limit (skipped)"}
@@ -231,13 +246,12 @@ class ModelBenchmark:
         while True:
             idx = self._or_key_index
             if idx in tried:
-                                                        
                 print(f"\n    [openrouter] all {len(self._openrouter_keys)} keys at limit, skipping", flush=True)
                 return {"success": False, "error": "all keys at limit (skipped)"}
             tried.add(idx)
             hint = self._openrouter_keys[idx][:12] + "..."
             if idx > 0:
-                print(f"\n    [openrouter] key #{idx+1}/{len(self._openrouter_keys)} ({hint})", end="", flush=True)
+                print(f"\n    [openrouter] key #{idx + 1}/{len(self._openrouter_keys)} ({hint})", end="", flush=True)
             result = self._openai_post(OPENROUTER_API, {
                 "Authorization": f"Bearer {self._openrouter_keys[idx]}",
                 "Content-Type": "application/json",
@@ -255,7 +269,7 @@ class ModelBenchmark:
                 if next_idx is not None and next_idx not in tried:
                     self._or_key_index = next_idx
                     continue
-                                              
+
                 print(f"\n    [openrouter] all {len(self._openrouter_keys)} keys at limit, skipping", flush=True)
                 return {"success": False, "error": "all keys at limit (skipped)"}
             return result
@@ -264,22 +278,22 @@ class ModelBenchmark:
         if not self.cerebras_key:
             return {"success": False, "error": "CEREBRAS_API_KEY not set"}
         return self._openai_post(CEREBRAS_API,
-            {"Authorization": f"Bearer {self.cerebras_key}", "Content-Type": "application/json"},
-            model_id, prompt)
+                                 {"Authorization": f"Bearer {self.cerebras_key}", "Content-Type": "application/json"},
+                                 model_id, prompt)
 
     def call_together(self, model_id, prompt):
         if not self.together_key:
             return {"success": False, "error": "TOGETHER_API_KEY not set"}
         return self._openai_post(TOGETHER_API,
-            {"Authorization": f"Bearer {self.together_key}", "Content-Type": "application/json"},
-            model_id, prompt)
+                                 {"Authorization": f"Bearer {self.together_key}", "Content-Type": "application/json"},
+                                 model_id, prompt)
 
     def call_sambanova(self, model_id, prompt):
         if not self.sambanova_key:
             return {"success": False, "error": "SAMBANOVA_API_KEY not set"}
         return self._openai_post(SAMBANOVA_API,
-            {"Authorization": f"Bearer {self.sambanova_key}", "Content-Type": "application/json"},
-            model_id, prompt)
+                                 {"Authorization": f"Bearer {self.sambanova_key}", "Content-Type": "application/json"},
+                                 model_id, prompt)
 
     def _call(self, provider, model_id, prompt):
         fn = {"groq": self.call_groq, "google": self.call_google,
@@ -290,7 +304,7 @@ class ModelBenchmark:
         if not fn:
             return {"success": False, "error": f"unknown provider: {provider}"}
         result = fn(model_id, prompt)
-                                                                           
+
         if not result["success"] and "429" in result.get("error", ""):
             model_info = self._current_model_info
             fallbacks = model_info.get("fallbacks", [])
@@ -312,8 +326,10 @@ class ModelBenchmark:
         low = err.lower()
         return any(p in low for p in _FATAL_MODEL_PATTERNS)
 
-    def eval_code(self, test_name, response):
-        cfg = TESTS["code"][test_name]
+    def eval_code(self, test_name, response, tier_tests=None):
+        if tier_tests is None:
+            tier_tests = TESTS
+        cfg = tier_tests["code"][test_name]
         fn_name = cfg.get("fn") or cfg["prompt"].split("called ")[1].split("(")[0].strip()
         if not response:
             return {"pass_rate": 0.0, "passed": 0, "total": len(cfg["expected"]), "error": "empty response"}
@@ -328,9 +344,11 @@ class ModelBenchmark:
             code = "\n".join(code_lines)
         results = []
         for inp, expected in zip(cfg["test_input"], cfg["expected"]):
+            # Support tuple inputs for multi-argument functions (e.g. binary_search(arr, target))
+            call_expr = f"{fn_name}(*{repr(inp)})" if isinstance(inp, tuple) else f"{fn_name}({repr(inp)})"
             try:
                 proc = subprocess.run(
-                    ["python3", "-c", f"{code}\nprint(repr({fn_name}({repr(inp)})))"],
+                    ["python3", "-c", f"{code}\nprint(repr({call_expr}))"],
                     capture_output=True, text=True, timeout=5)
                 if proc.returncode == 0:
                     output = proc.stdout.strip()
@@ -354,10 +372,12 @@ class ModelBenchmark:
         correct = any(a in short for a in REASONING_ANSWERS.get(test_name, []))
         return {"correct": correct, "score": 100 if correct else 0, "answer_given": response.strip()}
 
-    def eval_instruction(self, test_name, response):
+    def eval_instruction(self, test_name, response, tier_tests=None):
+        if tier_tests is None:
+            tier_tests = TESTS
         if not response:
             return {"score": 0, "reason": "empty response"}
-        cfg = TESTS["instruction"][test_name]
+        cfg = tier_tests["instruction"][test_name]
         if cfg["check"] == "json_keys":
             m = re.search(r'\{[\s\S]*\}', response)
             if not m:
@@ -375,14 +395,33 @@ class ModelBenchmark:
                     "found": len(numbered), "expected": cfg["count"]}
         if cfg["check"] == "sentence_count":
             sentences = [s.strip() for s in re.split(r'[.!?]+(?:\s|$)', response.strip()) if s.strip()]
-            return {"score": 100 if len(sentences) == cfg["count"] else 50 if abs(len(sentences)-cfg["count"]) <= 1 else 0,
+            return {"score": 100 if len(sentences) == cfg["count"] else 50 if abs(
+                len(sentences) - cfg["count"]) <= 1 else 0,
                     "found": len(sentences), "expected": cfg["count"]}
+        if cfg["check"] == "json_nested_user":
+            m = re.search(r'\{[\s\S]*\}', response)
+            if not m:
+                return {"score": 0, "reason": "no JSON found"}
+            try:
+                obj = json.loads(m.group())
+                user = obj.get("user", {})
+                ok = (
+                        isinstance(user, dict)
+                        and isinstance(user.get("name"), str)
+                        and isinstance(user.get("scores"), list) and len(user["scores"]) == 3
+                        and isinstance(user.get("active"), bool)
+                )
+                return {"score": 100 if ok else 50, "reason": "ok" if ok else "structure mismatch"}
+            except json.JSONDecodeError as e:
+                return {"score": 0, "reason": f"invalid JSON: {str(e)[:60]}"}
         return {"score": 0, "reason": "unknown check type"}
 
-    def eval_translation(self, test_name, response):
+    def eval_translation(self, test_name, response, tier_tests=None):
+        if tier_tests is None:
+            tier_tests = TESTS
         if not response:
             return {"score": 0}
-        cfg = TESTS["translation"][test_name]
+        cfg = tier_tests["translation"][test_name]
         text = response.strip()
         if cfg["check"] == "cyrillic":
             ratio = sum(1 for c in text if '\u0400' <= c <= '\u04FF') / max(len(text), 1)
@@ -397,34 +436,39 @@ class ModelBenchmark:
 
     def run_model(self, provider, model_info):
         delay = REQUEST_DELAY.get(provider, 2)
-        mid   = model_info["id"]
-        self._current_model_info = model_info                       
+        mid = model_info["id"]
+        self._current_model_info = model_info
         success_calls = 0
         if provider == "openrouter":
-            self._or_key_index = 0                                        
-                                                                                      
+            self._or_key_index = 0
+
             if self._next_available_or_key() is None:
                 print("  [openrouter] all keys at limit — skipping model")
                 return None
-                                                                                            
+
             has_live = self._ping_openrouter_keys_parallel(mid)
             if not has_live:
                 print("  [openrouter] all keys at limit — skipping model")
                 return None
+
+        cat = size_category(model_info["size"], model_info.get("size_category"))
+        tier_tests = TESTS_BY_TIER[cat]  # picks the right difficulty tier
+
         result = {
-            "model_id":      model_info.get("key", mid),
-            "model_name":    model_info["name"],
-            "provider":      model_info["provider"],
-            "size":          model_info["size"],
-            "size_category": size_category(model_info["size"]),
-            "context":       model_info.get("context", "N/A"),
-            "timestamp":     datetime.now().isoformat(),
-            "tests":         {},
+            "model_id": model_info.get("key", mid),
+            "model_name": model_info["name"],
+            "provider": model_info["provider"],
+            "size": model_info["size"],
+            "size_category": cat,
+            "tier": cat,
+            "context": model_info.get("context", "N/A"),
+            "timestamp": datetime.now().isoformat(),
+            "tests": {},
         }
 
         print("  speed...", end=" ", flush=True)
         speed_raw = []
-        for name, prompt in TESTS["speed"].items():
+        for name, prompt in tier_tests["speed"].items():
             r = self._call(provider, mid, prompt)
             if r["success"]:
                 success_calls += 1
@@ -442,23 +486,23 @@ class ModelBenchmark:
 
         print("  code...", end=" ", flush=True)
         code_raw = []
-        for name in TESTS["code"]:
-            r = self._call(provider, mid, TESTS["code"][name]["prompt"])
+        for name in tier_tests["code"]:
+            r = self._call(provider, mid, tier_tests["code"][name]["prompt"])
             if r["success"]:
                 success_calls += 1
-                code_raw.append({"test": name, **self.eval_code(name, r["content"])})
+                code_raw.append({"test": name, **self.eval_code(name, r["content"], tier_tests)})
             else:
                 print(f"\n    [{name}] {r['error']}", end="")
                 code_raw.append({"test": name, "pass_rate": 0.0, "passed": 0,
-                                 "total": len(TESTS["code"][name]["expected"]), "error": r["error"]})
+                                 "total": len(tier_tests["code"][name]["expected"]), "error": r["error"]})
             time.sleep(delay)
         avg_code = round(sum(x["pass_rate"] for x in code_raw) / len(code_raw) * 100, 1) if code_raw else 0
         result["tests"]["code"] = {"avg_score": avg_code, "details": code_raw}
-        print(f"done ({sum(x.get('passed',0) for x in code_raw)}/{sum(x.get('total',0) for x in code_raw)} passed)")
+        print(f"done ({sum(x.get('passed', 0) for x in code_raw)}/{sum(x.get('total', 0) for x in code_raw)} passed)")
 
         print("  reasoning...", end=" ", flush=True)
         reasoning_raw = []
-        for name, cfg in TESTS["reasoning"].items():
+        for name, cfg in tier_tests["reasoning"].items():
             r = self._call(provider, mid, cfg["prompt"])
             if r["success"]:
                 success_calls += 1
@@ -475,11 +519,11 @@ class ModelBenchmark:
 
         print("  instructions...", end=" ", flush=True)
         instr_raw = []
-        for name, cfg in TESTS["instruction"].items():
+        for name, cfg in tier_tests["instruction"].items():
             r = self._call(provider, mid, cfg["prompt"])
             if r["success"]:
                 success_calls += 1
-                instr_raw.append({"test": name, **self.eval_instruction(name, r["content"])})
+                instr_raw.append({"test": name, **self.eval_instruction(name, r["content"], tier_tests)})
             else:
                 print(f"\n    [{name}] {r['error']}", end="")
                 instr_raw.append({"test": name, "score": 0, "error": r["error"]})
@@ -490,11 +534,11 @@ class ModelBenchmark:
 
         print("  translation...", end=" ", flush=True)
         trans_raw = []
-        for name, cfg in TESTS["translation"].items():
+        for name, cfg in tier_tests["translation"].items():
             r = self._call(provider, mid, cfg["prompt"])
             if r["success"]:
                 success_calls += 1
-                trans_raw.append({"test": name, **self.eval_translation(name, r["content"])})
+                trans_raw.append({"test": name, **self.eval_translation(name, r["content"], tier_tests)})
             else:
                 print(f"\n    [{name}] {r['error']}", end="")
                 trans_raw.append({"test": name, "score": 0})
@@ -505,7 +549,7 @@ class ModelBenchmark:
 
         quality = round(avg_code * 0.30 + reasoning_score * 0.25 + avg_instr * 0.15 + avg_trans * 0.10, 1)
         result["quality_score"] = quality
-        result["raw_speed"]     = avg_tps
+        result["raw_speed"] = avg_tps
         result["overall_score"] = quality
         if success_calls == 0:
             print("  [skip] no successful API responses")
@@ -545,7 +589,7 @@ class ModelBenchmark:
                 if self.active_models and mkey not in self.active_models:
                     continue
                 minfo = dict(minfo, key=mkey)
-                cat = size_category(minfo["size"])
+                cat = size_category(minfo["size"], minfo.get("size_category"))
                 print(f"\n{minfo['name']} [{cat}] via {provider}")
                 r = self.run_model(provider, minfo)
                 if r:
@@ -564,6 +608,18 @@ class ModelBenchmark:
             for r in self.results:
                 if r.get("size_category") == cat:
                     r["speed_score"] = round(r["raw_speed"] / max_speed * 100, 1)
+
+        # Normalize quality_score within each tier so that models are compared
+        # against peers of the same size — a 8B scoring 70/100 on its easier
+        # tests is not directly comparable to a 405B scoring 70/100 on harder
+        # tests.  tier_quality_score gives a fair within-tier rank (0–100).
+        for cat in ["small", "medium", "large", "unknown"]:
+            cat_qualities = [r["quality_score"] for r in self.results
+                             if r.get("size_category") == cat and r["quality_score"] > 0]
+            max_quality = max(cat_qualities, default=1)
+            for r in self.results:
+                if r.get("size_category") == cat:
+                    r["tier_quality_score"] = round(r["quality_score"] / max_quality * 100, 1)
 
         daily_path = Path(f"../docs/data/results/{date_str}.json")
         if self.merge and daily_path.exists():
@@ -605,12 +661,12 @@ class ModelBenchmark:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--providers", default=None)
-    parser.add_argument("--models",    default=None)
-    parser.add_argument("--merge",     action="store_true")
+    parser.add_argument("--models", default=None)
+    parser.add_argument("--merge", action="store_true")
     args = parser.parse_args()
 
     active_providers = [p.strip().lower() for p in args.providers.split(",")] if args.providers else None
-    active_models    = [m.strip() for m in args.models.split(",")]            if args.models    else None
+    active_models = [m.strip() for m in args.models.split(",")] if args.models else None
 
     ModelBenchmark(active_providers=active_providers,
                    active_models=active_models,
