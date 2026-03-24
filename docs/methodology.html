@@ -38,9 +38,14 @@
         <a href="news.html" class="nav-link">News</a>
         <a href="trends.html" class="nav-link">Trends</a>
       </nav>
-    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-      <span class="icon-sun">☀️</span><span class="icon-moon">🌙</span>
-    </button>
+    <div class="theme-switch-wrap">
+      <span class="theme-switch-label" id="theme-label">Dark</span>
+      <label class="theme-switch" aria-label="Toggle theme">
+        <input type="checkbox" id="theme-toggle">
+        <span class="theme-switch-track"></span>
+        <span class="theme-switch-thumb" id="thumb-icon">🌙</span>
+      </label>
+    </div>
   </div>
 </header>
 
@@ -226,11 +231,19 @@
 
 <script>
 (function(){
-  function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('theme',t);}
-  var btn=document.getElementById('theme-toggle');
-  if(btn)btn.addEventListener('click',function(){
-    applyTheme((document.documentElement.getAttribute('data-theme')||'dark')==='dark'?'light':'dark');
-  });
+  var themeToggle = document.getElementById('theme-toggle');
+  var themeLabel  = document.getElementById('theme-label');
+  var thumbIcon   = document.getElementById('thumb-icon');
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    var dark = t === 'dark';
+    themeToggle.checked = dark;
+    themeLabel.textContent = dark ? 'Dark' : 'Light';
+    thumbIcon.textContent  = dark ? '🌙' : '☀️';
+  }
+  applyTheme(localStorage.getItem('theme') || 'dark');
+  themeToggle.addEventListener('change', function() { applyTheme(themeToggle.checked ? 'dark' : 'light'); });
 })();
 </script>
 

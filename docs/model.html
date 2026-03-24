@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){
+    var t = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  })();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Model Details — ModelLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-spacing.css">
+  <link rel="stylesheet" href="animations.css">
+  <style>
+    /* ── Page layout ── */
+    .model-hero {
+      background: var(--color-surf-cont-low);
+      border-bottom: 1px solid var(--color-outline-var);
+      padding: 32px 24px 28px;
+    }
+    .model-hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumb a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .model-hero-name {
+      font-family: 'Google Sans Display', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--color-on-surface);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .model-hero-meta {
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .model-hero-meta span { display: flex; align-items: center; gap: 5px; }
+    .hero-scores {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hero-score-chip {
+      background: var(--color-surf-cont);
+      border: 1px solid var(--color-outline-var);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-score-chip .chip-val {
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-score-chip.chip-quality .chip-val { color: var(--color-primary); }
+    .hero-score-chip.chip-speed   .chip-val { color: #0b8043; }
+
+    /* ── Content grid ── */
+    .detail-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+    .section-heading {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-on-surface);
+      margin: 40px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-heading:first-child { margin-top: 0; }
+
+    /* ── Test category card ── */
+    .test-category {
+      background: var(--color-surf-cont-low);
+      border: 1px solid var(--color-outline-var);
+      border-radius: 16px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .test-category-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+    .test-category-header:hover { background: var(--color-surf-cont); }
+    .test-cat-icon { font-size: 22px; flex-shrink: 0; }
+    .test-cat-info { flex: 1; }
+    .test-cat-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-on-surface);
+    }
+    .test-cat-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .test-cat-score-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .cat-score-pill {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-primary);
+      min-width: 56px;
+      text-align: right;
+      line-height: 1;
+    }
+    .cat-score-pill small { font-size: 13px; font-weight: 400; color: var(--text-tertiary); }
+    .cat-score-pill.fail { color: var(--color-error); }
+    .cat-score-pill.partial { color: #e65100; }
+    .chevron {
+      color: var(--text-tertiary);
+      font-size: 18px;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .test-category.open .chevron { transform: rotate(180deg); }
+
+    /* ── Score bar mini ── */
+    .cat-bar-wrap {
+      width: 80px;
+      height: 6px;
+      background: var(--color-outline-var);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .cat-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--color-primary);
+      transition: width .4s cubic-bezier(.4,0,.2,1);
+    }
+    .cat-bar-fill.fail    { background: var(--color-error); }
+    .cat-bar-fill.partial { background: #e65100; }
+
+    /* ── Test details body ── */
+    .test-body {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--color-outline-var);
+    }
+    .test-category.open .test-body { display: block; }
+
+    /* ── Individual test item ── */
+    .test-item {
+      background: var(--color-surf-cont);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .test-item-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .test-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-on-surface);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .pass-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+    .pass-badge.pass   { background: #e6f4ea; color: #137333; }
+    .pass-badge.fail   { background: #fce8e6; color: #c5221f; }
+    .pass-badge.partial{ background: #fef3e2; color: #b06000; }
+    [data-theme="dark"] .pass-badge.pass    { background: #0d3320; color: #81c995; }
+    [data-theme="dark"] .pass-badge.fail    { background: #370c0b; color: #f28b82; }
+    [data-theme="dark"] .pass-badge.partial { background: #3e2400; color: #ffb74d; }
+
+    /* ── Q&A prompt/answer boxes ── */
+    .qa-block { margin-top: 10px; }
+    .qa-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+    .qa-box {
+      background: var(--color-surf-cont-highest);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--color-on-surface);
+      border-left: 3px solid var(--color-outline-var);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+    .qa-box.answer-box { border-left-color: var(--color-primary); }
+    .qa-box.wrong-box  { border-left-color: var(--color-error); }
+
+    /* ── Code test cases table ── */
+    .cases-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .cases-table th {
+      text-align: left;
+      padding: 6px 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--color-outline-var);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .cases-table td {
+      padding: 7px 10px;
+      color: var(--color-on-surface);
+      border-bottom: 1px solid var(--color-outline-var);
+      vertical-align: middle;
+    }
+    .cases-table tr:last-child td { border-bottom: none; }
+    .cases-table tr:hover td { background: var(--color-surf-cont-high); }
+    .case-status { font-size: 16px; }
+    code {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      background: var(--color-surf-cont-highest);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--color-on-surface);
+    }
+
+    /* ── Speed section ── */
+    .speed-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .speed-item {
+      background: var(--color-surf-cont);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .speed-item-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: capitalize;
+      margin-bottom: 6px;
+    }
+    .speed-item-val {
+      font-size: 26px;
+      font-weight: 700;
+      color: #0b8043;
+      font-variant-numeric: tabular-nums;
+    }
+    .speed-item-unit { font-size: 13px; font-weight: 400; color: var(--text-tertiary); }
+
+    /* ── Translation result ── */
+    .trans-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-outline-var);
+      gap: 12px;
+    }
+    .trans-item:last-child { border-bottom: none; }
+    .trans-direction { font-size: 13px; font-weight: 500; color: var(--color-on-surface); }
+    .trans-detail { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+    /* ── Summary table ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .summary-tile {
+      background: var(--color-surf-cont-low);
+      border: 1px solid var(--color-outline-var);
+      border-radius: 14px;
+      padding: 16px 14px;
+      text-align: center;
+    }
+    .summary-tile-icon { font-size: 24px; margin-bottom: 6px; }
+    .summary-tile-val {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .summary-tile-val small { font-size: 14px; font-weight: 400; color: var(--text-tertiary); }
+    .summary-tile-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ── Loading / error ── */
+    .page-loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+    .page-error {
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .page-error h2 { color: var(--color-error); margin-bottom: 8px; }
+
+    /* ── Instruction details ── */
+    .instr-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-outline-var);
+    }
+    .instr-item:last-child { border-bottom: none; }
+
+    @media (max-width: 600px) {
+      .model-hero-name { font-size: 24px; }
+      .hero-scores { gap: 8px; }
+      .cat-bar-wrap { display: none; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header" id="app-bar">
+  <div class="header-content">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🔍</span>ModelLens
+    </a>
+    <nav class="nav">
+      <a href="index.html" class="nav-link">Rankings</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="search.html" class="nav-link">Search</a>
+      <a href="trends.html" class="nav-link">Trends</a>
+      <a href="news.html" class="nav-link">News</a>
+    </nav>
+    <div class="theme-switch-wrap">
+      <span class="theme-switch-label" id="theme-label">Dark</span>
+      <label class="theme-switch" aria-label="Toggle theme">
+        <input type="checkbox" id="theme-toggle">
+        <span class="theme-switch-track"></span>
+        <span class="theme-switch-thumb" id="thumb-icon">🌙</span>
+      </label>
+    </div>
+  </div>
+</header>
+
+<div id="page-root">
+  <div class="page-loading">Loading model data…</div>
+</div>
+
+<script>
+// ── Theme ──
+(function(){
+  var themeToggle = document.getElementById('theme-toggle');
+  var themeLabel  = document.getElementById('theme-label');
+  var thumbIcon   = document.getElementById('thumb-icon');
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    var dark = t === 'dark';
+    themeToggle.checked = dark;
+    themeLabel.textContent = dark ? 'Dark' : 'Light';
+    thumbIcon.textContent  = dark ? '🌙' : '☀️';
+  }
+  applyTheme(localStorage.getItem('theme') || 'dark');
+  themeToggle.addEventListener('change', function() { applyTheme(themeToggle.checked ? 'dark' : 'light'); });
+  window.addEventListener('scroll', function(){
+    document.getElementById('app-bar').classList.toggle('scrolled', window.scrollY > 0);
+  });
+})();
+
+// ── Helpers ──
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function scoreClass(score) {
+  if (score >= 80) return '';
+  if (score >= 40) return 'partial';
+  return 'fail';
+}
+function passBadge(passed, total) {
+  var pct = total > 0 ? passed / total * 100 : 0;
+  var cls = pct === 100 ? 'pass' : pct > 0 ? 'partial' : 'fail';
+  return '<span class="pass-badge ' + cls + '">' + passed + '/' + total + ' passed</span>';
+}
+
+// ── Prompt definitions (matching the benchmark workflow) ──
+var PROMPTS = {
+  code: {
+    prime:      'Write a Python function called <code>is_prime(n)</code> that returns <code>True</code> if n is prime, <code>False</code> otherwise.',
+    fibonacci:  'Write a Python function called <code>fibonacci(n)</code> that returns the nth Fibonacci number (0-indexed).',
+    palindrome: 'Write a Python function called <code>is_palindrome(s)</code> that returns <code>True</code> if the string is a palindrome (ignore case and spaces).'
+  },
+  reasoning: {
+    syllogism:     'All bloops are razzies. All razzies are lazzies. Are all bloops lazzies?',
+    speed_math:    'Train A travels 120 km in 2 hours. Train B travels 180 km in 3 hours. Which train is faster?',
+    river_crossing:'A farmer needs to cross a river with a fox, a chicken, and a bag of grain. The boat fits only the farmer and one item. The fox will eat the chicken if left alone together, and the chicken will eat the grain if left alone together. What does the farmer take across first?',
+    coin_flip:     'I flipped a fair coin 3 times and got heads each time. What is the probability the next flip is heads?',
+    counting:      'How many letters are in the word "MISSISSIPPI"?'
+  },
+  instruction: {
+    json:       'Return a JSON object with exactly these 3 keys: "name", "age", "city". Use any realistic values.',
+    list:       'List exactly 5 programming languages, numbered 1 through 5.',
+    word_count: 'Describe the city of Paris in exactly 3 sentences.'
+  },
+  translation: {
+    en_ru: 'Translate the following sentence to Russian: "The future of artificial intelligence is both exciting and challenging."',
+    ru_en: 'Translate the following sentence to English: "Искусственный интеллект меняет мир быстрее, чем мы успеваем осознать."',
+    en_es: 'Translate the following sentence to Spanish: "Technology is transforming the way we live and work every day."'
+  },
+  speed: {
+    simple: 'What is 2+2?',
+    medium: 'Explain what machine learning is in 2-3 sentences.',
+    long:   'Write a detailed explanation of how neural networks work, covering layers, weights, activation functions, and backpropagation.'
+  }
+};
+
+var REASONING_ANSWERS = {
+  syllogism:     'Yes — valid syllogism (Barbara form)',
+  speed_math:    'Same speed — both travel at exactly 60 km/h',
+  river_crossing:'Chicken — take it first so nothing gets eaten',
+  coin_flip:     '1/2 — each flip is independent',
+  counting:      '11 — M(1) I(4) S(4) P(2)'
+};
+
+var TRANSLATION_LABELS = {
+  en_ru: 'English → Russian',
+  ru_en: 'Russian → English',
+  en_es: 'English → Spanish'
+};
+var TRANSLATION_CHECKS = {
+  en_ru: function(d){ return 'Cyrillic ratio: ' + (d.cyrillic_ratio * 100).toFixed(0) + '% (threshold: >20%)'; },
+  ru_en: function(d){ return 'Latin ratio: ' + (d.latin_ratio * 100).toFixed(0) + '% (threshold: >60%)'; },
+  en_es: function(d){ return 'Spanish keywords found: ' + d.keywords_found + ' (threshold: ≥3)'; }
+};
+
+var INSTR_LABELS = {
+  json:       'Return a JSON object with exactly 3 keys: "name", "age", "city"',
+  list:       'List exactly 5 programming languages, numbered 1–5',
+  word_count: 'Describe Paris in exactly 3 sentences'
+};
+var INSTR_CHECK = {
+  json:       function(d){ return 'Check: valid JSON with all 3 keys present · ' + (d.reason === 'ok' ? '✅ Valid' : '❌ ' + d.reason); },
+  list:       function(d){ return 'Check: count numbered lines · found ' + d.found + ', expected ' + d.expected; },
+  word_count: function(d){ return 'Check: count sentences · found ' + d.found + ', expected ' + d.expected; }
+};
+
+// ── Render functions ──
+function renderCodeSection(tests) {
+  var details = tests.code.details;
+  var avg = tests.code.avg_score;
+  var cls = scoreClass(avg);
+  var totalPassed = 0, totalCases = 0;
+  details.forEach(function(t){ totalPassed += t.passed; totalCases += t.total; });
+
+  var body = details.map(function(t) {
+    var rows = t.details.map(function(c){
+      return '<tr><td><code>' + esc(c.input) + '</code></td>' +
+             '<td><code>' + esc(c.expected) + '</code></td>' +
+             '<td><code>' + esc(c.got) + '</code></td>' +
+             '<td class="case-status">' + (c.passed ? '✅' : '❌') + '</td></tr>';
+    }).join('');
+    var pct = t.total > 0 ? t.passed / t.total * 100 : 0;
+    var bc = pct === 100 ? 'pass' : pct > 0 ? 'partial' : 'fail';
+    return '<div class="test-item">' +
+      '<div class="test-item-header">' +
+        '<div>' +
+          '<div class="test-item-name">' + esc(t.test) + '</div>' +
+          '<div class="qa-label" style="margin-top:4px;">Prompt</div>' +
+          '<div class="qa-box" style="margin-bottom:0;">' + (PROMPTS.code[t.test] || t.test) + '</div>' +
+        '</div>' +
+        passBadge(t.passed, t.total) +
+      '</div>' +
+      '<table class="cases-table">' +
+        '<thead><tr><th>Input</th><th>Expected</th><th>Got</th><th>Result</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+    '</div>';
+  }).join('');
+
+  return makeCategoryCard('💻', 'Code — Real Execution', '3 functions · ' + totalPassed + '/' + totalCases + ' test cases passed', avg, cls, body);
+}
+
+function renderReasoningSection(tests) {
+  var d = tests.reasoning;
+  var avg = d.score;
+  var cls = scoreClass(avg);
+
+  var body = d.details.map(function(t) {
+    var correct = t.correct;
+    var bc = correct ? 'pass' : 'fail';
+    return '<div class="test-item">' +
+      '<div class="test-item-header">' +
+        '<div class="test-item-name">' + esc(t.test.replace('_', ' ')) + '</div>' +
+        '<span class="pass-badge ' + bc + '">' + (correct ? '✅ Correct' : '❌ Wrong') + '</span>' +
+      '</div>' +
+      '<div class="qa-block">' +
+        '<div class="qa-label">Question</div>' +
+        '<div class="qa-box">' + esc(PROMPTS.reasoning[t.test] || t.test) + '</div>' +
+        '<div class="qa-label">Model answered</div>' +
+        '<div class="qa-box ' + (correct ? 'answer-box' : 'wrong-box') + '">' + esc(t.answer_given || '—') + '</div>' +
+        '<div class="qa-label">Correct answer</div>' +
+        '<div class="qa-box">' + esc(REASONING_ANSWERS[t.test] || '—') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  return makeCategoryCard('🧠', 'Reasoning — Verified Answers', d.correct + '/' + d.total + ' correct', avg, cls, body);
+}
+
+function renderInstructionSection(tests) {
+  var d = tests.instruction;
+  var avg = d.avg_score;
+  var cls = scoreClass(avg);
+
+  var body = d.details.map(function(t) {
+    var bc = t.score === 100 ? 'pass' : t.score > 0 ? 'partial' : 'fail';
+    var checkText = INSTR_CHECK[t.test] ? INSTR_CHECK[t.test](t) : 'Score: ' + t.score;
+    return '<div class="test-item">' +
+      '<div class="test-item-header">' +
+        '<div class="test-item-name">' + esc(t.test.replace('_',' ')) + '</div>' +
+        '<span class="pass-badge ' + bc + '">' + t.score + '/100</span>' +
+      '</div>' +
+      '<div class="qa-block">' +
+        '<div class="qa-label">Task</div>' +
+        '<div class="qa-box">' + esc(INSTR_LABELS[t.test] || t.test) + '</div>' +
+        '<div class="qa-label">Grading method</div>' +
+        '<div class="qa-box answer-box">' + esc(checkText) + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  return makeCategoryCard('📋', 'Instruction Following', 'Format compliance · 3 tasks', avg, cls, body);
+}
+
+function renderTranslationSection(tests) {
+  var d = tests.translation;
+  var avg = d.avg_score;
+  var cls = scoreClass(avg);
+
+  var body = '<div class="test-item">' +
+    d.details.map(function(t) {
+      var bc = t.score === 100 ? 'pass' : t.score > 0 ? 'partial' : 'fail';
+      var checkText = TRANSLATION_CHECKS[t.test] ? TRANSLATION_CHECKS[t.test](t) : 'Score: ' + t.score;
+      return '<div class="trans-item">' +
+        '<div>' +
+          '<div class="trans-direction">' + (TRANSLATION_LABELS[t.test] || t.test) + '</div>' +
+          '<div class="qa-label" style="margin-top:6px;">Prompt</div>' +
+          '<div class="qa-box" style="margin-bottom:4px;">' + esc(PROMPTS.translation[t.test] || t.test) + '</div>' +
+          '<div class="trans-detail">' + esc(checkText) + '</div>' +
+        '</div>' +
+        '<span class="pass-badge ' + bc + '">' + t.score + '/100</span>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+
+  return makeCategoryCard('🌍', 'Translation', 'EN↔RU · EN→ES · script detection', avg, cls, body);
+}
+
+function renderSpeedSection(tests) {
+  var d = tests.speed;
+  var items = d.details.map(function(t) {
+    return '<div class="speed-item">' +
+      '<div class="speed-item-label">' + esc(t.test) + ' prompt</div>' +
+      '<div class="speed-item-val">' + Math.round(t.tokens_per_sec) + '<span class="speed-item-unit"> tok/s</span></div>' +
+      '<div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">' + t.tokens + ' tokens · ' + t.time.toFixed(2) + 's</div>' +
+      '<div class="qa-label" style="margin-top:8px;font-size:10px;">Prompt used</div>' +
+      '<div style="font-size:11px;color:var(--color-on-surface);background:var(--color-surf-cont-highest);border-radius:6px;padding:6px 10px;margin-top:2px;">' + esc(PROMPTS.speed[t.test] || t.test) + '</div>' +
+    '</div>';
+  }).join('');
+
+  var body = '<div class="speed-grid">' + items + '</div>' +
+    '<p style="font-size:12px;color:var(--text-tertiary);margin-top:12px;">⚠️ Speed depends on server load at test time (~03:00 UTC). Numbers reflect real-world performance but may vary at peak hours.</p>';
+
+  var avg = d.avg_tokens_per_sec;
+  return makeCategoryCard('⚡', 'Speed — Tokens Per Second', 'Avg ' + Math.round(avg) + ' tok/s · 3 prompt lengths', avg, '', body, true);
+}
+
+function makeCategoryCard(icon, name, sub, score, cls, bodyHtml, isSpeed) {
+  var barFill = isSpeed ? '' : ('<div class="cat-bar-wrap"><div class="cat-bar-fill ' + cls + '" style="width:' + Math.min(score,100) + '%"></div></div>');
+  var scoreDisp = isSpeed
+    ? '<span class="cat-score-pill" style="color:#0b8043;">' + Math.round(score) + '<small> t/s</small></span>'
+    : '<span class="cat-score-pill ' + cls + '">' + Math.round(score) + '<small>/100</small></span>';
+
+  return '<div class="test-category">' +
+    '<div class="test-category-header" onclick="toggleCat(this)">' +
+      '<span class="test-cat-icon">' + icon + '</span>' +
+      '<div class="test-cat-info">' +
+        '<div class="test-cat-name">' + name + '</div>' +
+        '<div class="test-cat-sub">' + sub + '</div>' +
+      '</div>' +
+      '<div class="test-cat-score-wrap">' +
+        barFill +
+        scoreDisp +
+      '</div>' +
+      '<span class="chevron">▾</span>' +
+    '</div>' +
+    '<div class="test-body">' + bodyHtml + '</div>' +
+  '</div>';
+}
+
+function toggleCat(header) {
+  var card = header.closest('.test-category');
+  card.classList.toggle('open');
+}
+
+// ── Main render ──
+function renderPage(model) {
+  var t = model.tests;
+  document.title = model.model_name + ' — ModelLens';
+
+  var sizeLabel = { large: '🔴 Large', medium: '🟡 Medium', small: '🟢 Small' }[model.size_category] || model.size_category;
+
+  var heroHtml = '<div class="model-hero">' +
+    '<div class="model-hero-inner">' +
+      '<div class="breadcrumb"><a href="index.html">Rankings</a> › ' + esc(model.model_name) + '</div>' +
+      '<div class="model-hero-name">' + esc(model.model_name) + '</div>' +
+      '<div class="model-hero-meta">' +
+        '<span>🏢 ' + esc(model.provider) + '</span>' +
+        '<span>📐 ' + esc(model.size) + ' · ' + sizeLabel + '</span>' +
+        '<span>📖 ' + esc(model.context) + ' context</span>' +
+        '<span>🗓 Tested ' + new Date(model.timestamp).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) + '</span>' +
+      '</div>' +
+      '<div class="hero-scores">' +
+        '<div class="hero-score-chip chip-quality"><span>Quality</span><span class="chip-val">' + Math.round(model.quality_score) + '</span><span style="font-size:12px;color:var(--text-tertiary)">/100</span></div>' +
+        '<div class="hero-score-chip chip-speed"><span>⚡ Speed</span><span class="chip-val">' + Math.round(model.raw_speed) + '</span><span style="font-size:12px;color:var(--text-tertiary)">tok/s</span></div>' +
+        '<div class="hero-score-chip"><span>💻 Code</span><span class="chip-val" style="color:var(--color-on-surface)">' + Math.round(t.code.avg_score) + '</span><span style="font-size:12px;color:var(--text-tertiary)">/100</span></div>' +
+        '<div class="hero-score-chip"><span>🧠 Reasoning</span><span class="chip-val" style="color:var(--color-on-surface)">' + Math.round(t.reasoning.score) + '</span><span style="font-size:12px;color:var(--text-tertiary)">/100</span></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  var sectionsHtml =
+    '<div class="detail-container">' +
+      '<h2 class="section-heading">🔬 Full Test Breakdown</h2>' +
+      '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;line-height:1.6;">Click any category to expand the exact prompts, the model\'s responses, and how each answer was graded.</p>' +
+      renderCodeSection(t) +
+      renderReasoningSection(t) +
+      renderInstructionSection(t) +
+      renderTranslationSection(t) +
+      renderSpeedSection(t) +
+    '</div>';
+
+  document.getElementById('page-root').innerHTML = heroHtml + sectionsHtml;
+}
+
+// ── Load data ──
+var params  = new URLSearchParams(window.location.search);
+var modelId = params.get('id');
+
+if (!modelId) {
+  document.getElementById('page-root').innerHTML =
+    '<div class="page-error"><h2>No model specified</h2><p><a href="index.html">← Back to rankings</a></p></div>';
+} else {
+  fetch('data/results/latest.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var model = data.results.find(function(m){ return m.model_id === modelId; });
+      if (!model) {
+        document.getElementById('page-root').innerHTML =
+          '<div class="page-error"><h2>Model not found</h2><p>ID: ' + esc(modelId) + '</p><p><a href="index.html">← Back to rankings</a></p></div>';
+      } else {
+        renderPage(model);
+      }
+    })
+    .catch(function(err) {
+      document.getElementById('page-root').innerHTML =
+        '<div class="page-error"><h2>Failed to load data</h2><p>' + esc(String(err)) + '</p><p><a href="index.html">← Back to rankings</a></p></div>';
+    });
+}
+</script>
+
+</body>
+</html>

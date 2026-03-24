@@ -11,10 +11,14 @@
       <a href="news.html" class="nav-link">News</a>
       <a href="about.html" class="nav-link">About</a>
     </nav>
-    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-      <span class="icon-sun">☀️</span>
-      <span class="icon-moon">🌙</span>
-    </button>
+    <div class="theme-switch-wrap">
+      <span class="theme-switch-label" id="theme-label">Dark</span>
+      <label class="theme-switch" aria-label="Toggle theme">
+        <input type="checkbox" id="theme-toggle">
+        <span class="theme-switch-track"></span>
+        <span class="theme-switch-thumb" id="thumb-icon">🌙</span>
+      </label>
+    </div>
   </div>
 </header>
 

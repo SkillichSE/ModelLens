@@ -370,6 +370,9 @@ function renderCard(m, i) {
       <span class="score-footer-label">Quality score</span>
       <span class="score-footer-val">${Math.round(q)}<span>/100</span></span>
     </div>
+    <div style="padding:10px 0 2px;border-top:1px solid var(--color-outline-var);margin-top:4px;">
+      <a href="model.html?id=${encodeURIComponent(m.model_id)}" style="font-size:13px;font-weight:500;color:var(--color-primary);text-decoration:none;">View full test breakdown →</a>
+    </div>
   </div>`;
 }
 
