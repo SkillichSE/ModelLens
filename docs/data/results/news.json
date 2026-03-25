@@ -1,7 +1,14 @@
 {
-  "updated": "2026-03-24T19:30:57.920419+00:00",
+  "updated": "2026-03-25T05:58:33.515659+00:00",
   "count": 30,
   "items": [
+    {
+      "title": "Deploy SageMaker AI inference endpoints with set GPU capacity using training plans",
+      "link": "https://aws.amazon.com/blogs/machine-learning/deploy-sagemaker-ai-inference-endpoints-with-set-gpu-capacity-using-training-plans/",
+      "date": "2026-03-24T20:27:49+00:00",
+      "source": "AWS ML Blog",
+      "summary": "In this post, we walk through how to search for available p-family GPU capacity, create a training plan reservation for inference, and deploy a SageMaker AI inference endpoint on that reserved capacity. We follow a data scientist's journey as they reserve capacity for model evalu"
+    },
     {
       "title": "Accelerating custom entity recognition with Claude tool use in Amazon Bedrock",
       "link": "https://aws.amazon.com/blogs/machine-learning/accelerating-custom-entity-recognition-with-claude-tool-use-in-amazon-bedrock/",
@@ -204,13 +211,6 @@
       "date": "2026-03-17T15:51:08+00:00",
       "source": "AWS ML Blog",
       "summary": "In this post, we\u2019ll explore how Atos used the AWS AI League to help accelerate AI education across 400+ participants, highlight the tangible benefits of gamified, experiential learning, and share actionable insights you can apply to your own AI enablement programs."
-    },
-    {
-      "title": "Holotron-12B - High Throughput Computer Use Agent",
-      "link": "https://huggingface.co/blog/Hcompany/holotron-12b",
-      "date": "2026-03-17T12:33:39+00:00",
-      "source": "Hugging Face",
-      "summary": ""
     }
   ]
 }
