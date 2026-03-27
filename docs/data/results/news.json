@@ -1,7 +1,56 @@
 {
-  "updated": "2026-03-26T05:54:15.444685+00:00",
+  "updated": "2026-03-27T06:04:43.775915+00:00",
   "count": 30,
   "items": [
+    {
+      "title": "Run Generative AI inference with Amazon Bedrock in Asia Pacific (New Zealand)",
+      "link": "https://aws.amazon.com/blogs/machine-learning/run-generative-ai-inference-with-amazon-bedrock-in-asia-pacific-new-zealand/",
+      "date": "2026-03-26T23:08:53+00:00",
+      "source": "AWS ML Blog",
+      "summary": "Today, we\u2019re excited to announce that Amazon Bedrock is now available in the Asia Pacific (New Zealand) Region (ap-southeast-6). Customers in New Zealand can now access Anthropic Claude models (Claude Opus 4.5, Opus 4.6, Sonnet 4.5, Sonnet 4.6, and Haiku 4.5) and Amazon (Nova 2 L"
+    },
+    {
+      "title": "Building age-responsive, context-aware AI with Amazon Bedrock Guardrails",
+      "link": "https://aws.amazon.com/blogs/machine-learning/building-age-responsive-context-aware-ai-with-amazon-bedrock-guardrails/",
+      "date": "2026-03-26T17:26:23+00:00",
+      "source": "AWS ML Blog",
+      "summary": "In this post, we walk you through how to implement a fully automated, context-aware AI solution using a serverless architecture on AWS. This solution helps organizations looking to deploy responsible AI systems, align with compliance requirements for vulnerable populations, and h"
+    },
+    {
+      "title": "Accelerating LLM fine-tuning with unstructured data using SageMaker Unified Studio and S3",
+      "link": "https://aws.amazon.com/blogs/machine-learning/accelerating-llm-fine-tuning-with-unstructured-data-using-sagemaker-unified-studio-and-s3/",
+      "date": "2026-03-26T17:20:26+00:00",
+      "source": "AWS ML Blog",
+      "summary": "Last year, AWS announced an integration between Amazon SageMaker Unified Studio and Amazon S3 general purpose buckets. This integration makes it straightforward for teams to use unstructured data stored in Amazon Simple Storage Service (Amazon S3) for machine learning (ML) and da"
+    },
+    {
+      "title": "Introducing Amazon Polly Bidirectional Streaming: Real-time speech synthesis for conversational AI",
+      "link": "https://aws.amazon.com/blogs/machine-learning/introducing-amazon-polly-bidirectional-streaming-real-time-speech-synthesis-for-conversational-ai/",
+      "date": "2026-03-26T17:10:20+00:00",
+      "source": "AWS ML Blog",
+      "summary": "Today, we\u2019re excited to announce the new Bidirectional Streaming API for Amazon Polly, enabling streamlined real-time text-to-speech (TTS) synthesis where you can start sending text and receiving audio simultaneously. This new API is built for conversational AI applications that "
+    },
+    {
+      "title": "Watch James Manyika talk AI and creativity with LL COOL J.",
+      "link": "https://blog.google/innovation-and-ai/technology/ai/ll-cool-j-dialogues/",
+      "date": "2026-03-26T17:00:00+00:00",
+      "source": "Google AI Blog",
+      "summary": "In the latest episode of our Dialogues on Technology and Society series, LL COOL J sits down with James Manyika."
+    },
+    {
+      "title": "Gemini 3.1 Flash Live: Making audio AI more natural and reliable",
+      "link": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-live/",
+      "date": "2026-03-26T15:21:00+00:00",
+      "source": "Google AI Blog",
+      "summary": "The Gemini emblem sits next to text reading 'Gemini 3.1 Flash Live'. The background has blue, multicolored dots making up a microphone icon"
+    },
+    {
+      "title": "Plan, divide, and conquer: How weak models excel at long context tasks",
+      "link": "https://www.together.ai/blog/plan-divide-conquer",
+      "date": "2026-03-26T00:00:00+00:00",
+      "source": "Together AI",
+      "summary": "As context windows grow, LLM performance degrades in unexpected ways. We show how a \"Divide & Conquer\" framework \u2014 breaking long documents into parallel chunks with a planner, workers, and manager \u2014 lets smaller models like Llama-3-70B and Qwen-72B outperform GPT-4o single-shot."
+    },
     {
       "title": "Unlocking video insights at scale with Amazon Bedrock multimodal models",
       "link": "https://aws.amazon.com/blogs/machine-learning/unlocking-video-insights-at-scale-with-amazon-bedrock-multimodal-models/",
@@ -162,55 +211,6 @@
       "date": "2026-03-20T14:14:46+00:00",
       "source": "Hugging Face",
       "summary": ""
-    },
-    {
-      "title": "Run NVIDIA Nemotron 3 Super on Amazon Bedrock",
-      "link": "https://aws.amazon.com/blogs/machine-learning/run-nvidia-nemotron-3-super-on-amazon-bedrock/",
-      "date": "2026-03-19T17:25:44+00:00",
-      "source": "AWS ML Blog",
-      "summary": "This post explores the technical characteristics of the Nemotron 3 Super model and discusses potential application use cases. It also provides technical guidance to get started using this model for your generative AI applications within the Amazon Bedrock environment."
-    },
-    {
-      "title": "Use RAG for video generation using Amazon Bedrock and Amazon Nova Reel",
-      "link": "https://aws.amazon.com/blogs/machine-learning/use-rag-for-video-generation-using-amazon-bedrock-and-amazon-nova-reel/",
-      "date": "2026-03-19T16:45:50+00:00",
-      "source": "AWS ML Blog",
-      "summary": "In this post, we explore our approach to video generation through VRAG, transforming natural language text prompts and images into grounded, high-quality videos. Through this fully automated solution, you can generate realistic, AI-powered video sequences from structured text and"
-    },
-    {
-      "title": "Introducing V-RAG: revolutionizing AI-powered video production with Retrieval Augmented Generation",
-      "link": "https://aws.amazon.com/blogs/machine-learning/introducing-v-rag-revolutionizing-ai-powered-video-production-with-retrieval-augmented-generation/",
-      "date": "2026-03-19T16:45:42+00:00",
-      "source": "AWS ML Blog",
-      "summary": "This post introduces Video Retrieval-Augmented Generation (V-RAG), an approach to help improve video content creation. By combining retrieval augmented generation with advanced video AI models, V-RAG offers an efficient, and reliable solution for generating AI videos."
-    },
-    {
-      "title": "Enhanced metrics for Amazon SageMaker AI endpoints: deeper visibility for better performance",
-      "link": "https://aws.amazon.com/blogs/machine-learning/enhanced-metrics-for-amazon-sagemaker-ai-endpoints-deeper-visibility-for-better-performance/",
-      "date": "2026-03-19T14:32:11+00:00",
-      "source": "AWS ML Blog",
-      "summary": "SageMaker AI endpoints now support enhanced metrics with configurable publishing frequency. This launch provides the granular visibility needed to monitor, troubleshoot, and improve your production endpoints."
-    },
-    {
-      "title": "How we monitor internal coding agents for misalignment",
-      "link": "https://openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
-      "date": "2026-03-19T10:00:00+00:00",
-      "source": "OpenAI",
-      "summary": "How OpenAI uses chain-of-thought monitoring to study misalignment in internal coding agents\u2014analyzing real-world deployments to detect risks and strengthen AI safety safeguards."
-    },
-    {
-      "title": "OpenAI to acquire Astral",
-      "link": "https://openai.com/index/openai-to-acquire-astral",
-      "date": "2026-03-19T00:00:00+00:00",
-      "source": "OpenAI",
-      "summary": "Accelerates Codex growth to power the next generation of Python developer tools"
-    },
-    {
-      "title": "Kick off Nova customization experiments using Nova Forge SDK",
-      "link": "https://aws.amazon.com/blogs/machine-learning/kick-off-nova-customization-experiments-using-nova-forge-sdk/",
-      "date": "2026-03-18T16:16:24+00:00",
-      "source": "AWS ML Blog",
-      "summary": "In this post, we walk you through the process of using the Nova Forge SDK to train an Amazon Nova model using Amazon SageMaker AI Training Jobs."
     }
   ]
 }
