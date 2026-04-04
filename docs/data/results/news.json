@@ -1,7 +1,21 @@
 {
-  "updated": "2026-04-03T05:52:58.330747+00:00",
+  "updated": "2026-04-04T05:38:38.506448+00:00",
   "count": 30,
   "items": [
+    {
+      "title": "Wan 2.7 now available on Together AI",
+      "link": "https://www.together.ai/blog/wan-2-7-now-available-on-together-ai",
+      "date": "2026-04-03T00:00:00+00:00",
+      "source": "Together AI",
+      "summary": "A four-model video suite for generation, continuation, reference-driven workflows, and editing, rolling out on Together AI starting with text-to-video."
+    },
+    {
+      "title": "AI for Systems: Using LLMs to Optimize Database Query Execution",
+      "link": "https://www.together.ai/blog/using-llms-to-optimize-database-query-execution",
+      "date": "2026-04-03T00:00:00+00:00",
+      "source": "Together AI",
+      "summary": "New research shows LLMs can optimize database query execution plans\u2014achieving up to 4.78x speedups by correcting the cardinality estimation errors that statistical heuristics miss."
+    },
     {
       "title": "Accelerating Vision AI Pipelines with Batch Mode VC-6 and NVIDIA Nsight",
       "link": "https://developer.nvidia.com/blog/accelerating-vision-ai-pipelines-with-batch-mode-vc-6-and-nvidia-nsight/",
@@ -66,6 +80,13 @@
       "summary": ""
     },
     {
+      "title": "Deepgram speech-to-text and voice models now available natively on Together AI",
+      "link": "https://www.together.ai/blog/deepgram-speech-to-text-and-voice-models-now-available-natively-on-together-ai",
+      "date": "2026-04-02T00:00:00+00:00",
+      "source": "Together AI",
+      "summary": "Production STT and TTS from Deepgram, available on Together AI Dedicated Model Inference for real-time voice agents."
+    },
+    {
       "title": "Holo3: Breaking the Computer Use Frontier",
       "link": "https://huggingface.co/blog/Hcompany/holo3",
       "date": "2026-04-01T16:36:15+00:00",
@@ -73,8 +94,8 @@
       "summary": ""
     },
     {
-      "title": "NVIDIA Extreme Co-Design Delivers New MLPerf Inference Records",
-      "link": "https://developer.nvidia.com/blog/nvidia-extreme-co-design-delivers-new-mlperf-inference-records/",
+      "title": "NVIDIA Platform Delivers Lowest Token Cost Enabled by Extreme Co-Design",
+      "link": "https://developer.nvidia.com/blog/nvidia-platform-delivers-lowest-token-cost-enabled-by-extreme-co-design/",
       "date": "2026-04-01T15:00:48Z",
       "source": "NVIDIA Developer",
       "summary": "Co-designed hardware, software, and models are key to delivering the highest AI factory throughput and lowest token cost. Measuring this goes far beyond peak..."
@@ -190,27 +211,6 @@
       "date": "2026-03-30T15:17:26+00:00",
       "source": "AWS ML Blog",
       "summary": "In this post, we walk through two use cases that help enhance the user viewing experience using agentic AI tools and frameworks including Strands Agents SDK, Amazon Bedrock AgentCore, and Amazon Nova Sonic 2.0. This agentic AI system uses a Model Context Protocol (MCP) to deliver"
-    },
-    {
-      "title": "Helping disaster response teams turn AI into action across Asia",
-      "link": "https://openai.com/index/helping-disaster-response-teams-asia",
-      "date": "2026-03-29T22:15:00+00:00",
-      "source": "OpenAI",
-      "summary": "AI for Disaster Response in Asia: OpenAI Workshop with Gates Foundation"
-    },
-    {
-      "title": "STADLER reshapes knowledge work at a 230-year-old company",
-      "link": "https://openai.com/index/stadler",
-      "date": "2026-03-27T22:00:00+00:00",
-      "source": "OpenAI",
-      "summary": "Learn how STADLER uses ChatGPT to transform knowledge work, saving time and accelerating productivity across 650 employees."
-    },
-    {
-      "title": "Liberate your OpenClaw",
-      "link": "https://huggingface.co/blog/liberate-your-openclaw",
-      "date": "2026-03-27T00:00:00+00:00",
-      "source": "Hugging Face",
-      "summary": ""
     }
   ]
 }
